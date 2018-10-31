@@ -60,7 +60,7 @@ module Spotlight
                 set_collection_specific_data(record_type_field_name)
               else
                 set_item_specific_data(record_type_field_name)
-                process_image_data()
+                process_images()
               end
   
               uniquify_repos(repository_field_name)
@@ -118,6 +118,7 @@ module Spotlight
             if (!code.blank?)
               item = nil
               if data_type == "lang"
+                require 'language'
                 item = Language.find_by(code: code)
               else
                 item = Origin.find_by(code: code)
@@ -246,132 +247,32 @@ private
         end
       end
       
-      
-      def set_item_specific_data(record_type_field_name)
-        catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
-        catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
-        repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
-                         
-        @item_solr[record_type_field_name] = "item"
-        @item_sidecar["record-type_ssim"] = "item"
-        
-        ##CNA Specific
-        catalog_url = @item.get_catalog_url
-        if (!catalog_url.blank?)
-          @item_solr[catalog_url_field_name] = catalog_url
-          #Extract the ALEPH ID from the URL
-          catalog_url_array = catalog_url.split('/').last(2)
-          collection_id_tesim = @oai_mods_converter.get_spotlight_field_name("collection_id_tesim")
-          @item_solr[collection_id_tesim] = catalog_url_array[0]
-          @item_sidecar["collection_id_tesim"] = catalog_url_array[0]
-        end
 
-        finding_aid_url = @item.get_finding_aid
-        if (!finding_aid_url.blank?)
-          finding_aid_url_field_name = @oai_mods_converter.get_spotlight_field_name("finding-aid_tesim")
-          @item_solr[finding_aid_url_field_name] = finding_aid_url
-          @item_sidecar["finding-aid_tesim"] = finding_aid_url
-        end 
-        
-        #If the creator doesn't exist from the mapping, we have to extract it from the related items (b/c it is an EAD component)
-        creator_field_name = @oai_mods_converter.get_spotlight_field_name("creator_tesim")
-        if (!@item_solr.key?(creator_field_name) || @item_solr[creator_field_name].blank?)
-          creator = @item.get_creator
-          if (!creator.blank?)
-            @item_solr[creator_field_name] = creator
-            @item_sidecar["creator_tesim"] = creator
-          end
-        end
-        
-        #If the repository doesn't exist from the mapping, we have to extract it from the related items (b/c it is an EAD component)
-        if (!@item_solr.key?(repository_field_name) || @item_solr[repository_field_name].blank?)
-          repo = @item.get_repository
-          if (!repo.blank?)
-            @item_solr[repository_field_name] = repo
-            @item_sidecar["repository_ssim"] = repo
-          end
-        end
       
-        #If the collection title doesn't exist from the mapping, we have to extract it from the related items (b/c it is an EAD component)
-        coll_title_field_name = @oai_mods_converter.get_spotlight_field_name("collection-title_ssim")
-        if (!@item_solr.key?(coll_title_field_name) || @item_solr[coll_title_field_name].blank?)
-          colltitle = @item.get_collection_title
-          if (!colltitle.blank?)
-            @item_solr[coll_title_field_name] = colltitle
-            @item_sidecar["collection-title_ssim"] = colltitle
-          end
-        end
-      end
-      
-      def process_image_data()
+      def process_images()
         if (@item_solr.key?('thumbnail_url_ssm') && !@item_solr['thumbnail_url_ssm'].blank? && !@item_solr['thumbnail_url_ssm'].eql?('null'))           
-          thumburl = @item_solr['thumbnail_url_ssm']
-          thumburl = thumburl.split('?')[0]
-            
-          thumb = nil
-          fullurl = nil
-          square = nil
-          fullimagefile = nil
+          thumburl = fetch_ids_uri(@item_solr['thumbnail_url_ssm'])
+          thumburl = transform_ids_uri_to_iiif(thumburl)
+          @item_solr['thumbnail_url_ssm'] =  thumburl
+        end
+        if (@item_solr.key?('full_image_url_ssm') && !@item_solr['full_image_url_ssm'].blank? && !@item_solr['full_image_url_ssm'].eql?('null'))           
           
-          #If the images haven't been uploaded, then upload them.
-          #This is restricted to one time because it is time-consuming
-          dir = Rails.root.join("public",@item.itemurl.store_dir)
-          if (!Dir.exist?(dir))
-            @item.remote_itemurl_url = thumburl
-            @item.store_itemurl!
-          
-            if (!@item.itemurl.nil? && !@item.itemurl.file.nil? && !@item.itemurl.file.file.nil?)
-              filename = @item.itemurl.file.file
-              #strip off everything before the /uploads
-              filenamearray = filename.split("/uploads")
-              if (filenamearray.length == 2)
-                filename = "/uploads" + filenamearray[1]
-              end
-              fullimagefile = @item.itemurl.file.file
-              fullurl = filename
+          fullurl = fetch_ids_uri(@item_solr['full_image_url_ssm'])
+          if (!fullurl.blank?)
+
+            #If it is http, make it https            
+            if (fullurl.include?('http://'))
+              fullurl = fullurl.sub(/http:\/\//, "https://")
             end
-            
-            if (!@item.itemurl.nil? && !@item.itemurl.thumb.nil? && !@item.itemurl.thumb.file.nil?)
-              filename = @item.itemurl.thumb.file.file
-              #strip off everything before the /uploads
-              filenamearray = filename.split("/uploads")
-              if (filenamearray.length == 2)
-                filename = "/uploads" + filenamearray[1]
-              end
-                                
-              thumb = filename
+            #if it is IDS, then add ?buttons=y so that mirador works
+            if (fullurl.include?('https://ids') && !fullurl.include?('?buttons=y'))
+              fullurl = fullurl + '?buttons=y'
             end
-            
-            if (!@item.itemurl.nil? && !@item.itemurl.square.nil? && !@item.itemurl.square.file.nil?)
-              filename = @item.itemurl.square.file.file
-              # strip off everything before the /uploads
-              filenamearray = filename.split("/uploads")
-              if (filenamearray.length == 2)
-                filename = "/uploads" + filenamearray[1]
-              end
-                                
-              square = filename
-            end 
-          else
-            files = Dir.entries(Rails.root.join("public",@item.itemurl.store_dir))
-            files.delete(".")
-            files.delete("..")
-            
-            files.each do |f|
-              if (f.start_with?('thumb'))
-                thumb = File.join("/",@item.itemurl.store_dir,f)                   
-              elsif (f.start_with?('square'))
-                square = File.join("/",@item.itemurl.store_dir,f)
-              else
-                fullurl = File.join("/",@item.itemurl.store_dir,f)
-                fullimagefile = File.open(Rails.root.join("public",@item.itemurl.store_dir,f))
-              end
-            end
-          end      
-          add_image_info(fullurl, thumb, square)
-          add_image_dimensions(fullimagefile)
+            @item_solr['full_image_url_ssm'] =  fullurl
+          end
         end
       end
+              
  
       def uniquify_repos(repository_field_name)
         
