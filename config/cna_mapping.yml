@@ -1,0 +1,191 @@
+#Structure:
+
+#  - spotlight-field: xxx
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    mods:
+#        - path: xxx (repeatable - all path fields will be concatenated)
+#          delimiter: " "
+#          attribute: displayLabel
+#          attribute-value: collection
+#          mods-path: xxx 
+#          mods-value: xx
+#          subpaths: 
+#            - subpath: xxx
+#            - subpath: xxx
+#
+  # In CNA, this field has to append a urn if the record type is item - Michael may have to do this one
+- spotlight-field: unique-id_tesim
+  mods:
+      - path: recordInfo/recordIdentifier
+- spotlight-field: record-type_ssim
+  mods:
+      - path: typeOfResource
+        attribute: collection
+        attribute-value: 'yes'
+- spotlight-field: full_title_tesim
+  delimiter: ": "
+  mods:
+      - path: titleInfo
+        delimiter: " "
+        subpaths:
+          - subpath: nonSort
+          - subpath: title
+      - path: titleInfo/subTitle
+- spotlight-field: collection-title_ssim
+  mods:
+      - path: relatedItem
+        delimiter: " "
+        attribute: displayLabel
+        attribute-value: collection
+        subpaths: 
+          - subpath: titleInfo/title
+          - subpath: originInfo/dateCreated
+- spotlight-field: citation-title_tesim
+  mods:
+      - path: titleInfo/title
+- spotlight-field: creator_tesim
+  mods:
+      - path: plain_name
+        delimiter: " , "
+        mods-path: role/roleTerm
+        mods-value: creator
+        subpaths:
+          - subpath: namePart
+- spotlight-field: start-date_tesim
+  mods:
+      - path: originInfo/dateCreated
+        delimiter: "|"
+        attribute: point
+        attribute-value: start
+- spotlight-field: end-date_tesim
+  mods:
+      - path: originInfo/dateCreated
+        delimiter: "|"
+        attribute: point
+        attribute-value: end
+- spotlight-field: date_tesim
+  mods:
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+- spotlight-field: contributer_tesim
+  delimiter: " , "
+  mods:
+      - path: plain_name
+        delimiter: " , "
+        mods-path: role/roleTerm
+        mods-value: '!creator'
+        subpaths:
+          - subpath: namePart
+- spotlight-field: spotlight_upload_description_tesim
+  delimiter: "|"
+  mods: 
+      - path: abstract
+      - path: note
+        attribute: type
+        attribute-value: 
+- spotlight-field: format_tesim
+  delimiter: "|"
+  mods:
+      - path: physicalDescription/extent
+- spotlight-field: language_ssim
+  default-value: eng
+  delimiter: "|"
+  mods: 
+      - path: language/languageTerm
+- spotlight-field: repository_ssim
+  delimiter: "|"
+  mods:
+      - path: location/physicalLocation
+        attribute: type
+        attribute-value: repository
+      - path: relatedItem
+        subpaths:
+          - subpath: location/physicalLocation
+        attribute: displayLabel
+        attribute-value: collection
+- spotlight-field: subjects_ssim
+  delimiter: "|"
+  mods:
+      - path: subject
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: topic
+          - subpath: geographic
+          - subpath: genre
+- spotlight-field: type_ssim
+  delimiter: "|"
+  mods:
+      - path: genre
+- spotlight-field: origin_ssim
+  mods:
+      - path: originInfo/place/placeTerm
+- spotlight-field: biography_tesim
+  delimiter: "|"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: biographical/historical
+- spotlight-field: statement-of-responsibility_tesim
+  delimiter: "|"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: statement of responsibility
+- spotlight-field: citation_tesim
+  delimiter: "|"
+  mods:
+       - path: note
+         attribute: type
+         attribute-value: preferred citation
+- spotlight-field: physical-form_tesim
+  delimiter: "|"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: additional physical form
+- spotlight-field: language-info_tesim
+  delimiter: "|"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: language
+- spotlight-field: publications_tesim
+  delimiter: "|"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: publications
+- spotlight-field: funding_tesim
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: funding
+- spotlight-field: funding_ssim
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: funding
+- spotlight-field: mirador-url_tesim
+  mods:
+      - path: location/url
+        attribute: access
+        attribute-value: raw object
+- spotlight-field: thumbnail_url_ssm
+  mods:
+      - path: location/url
+        attribute: access
+        attribute-value: preview
+- spotlight-field: rights_tesim
+  mods:
+      - path: accessCondition
+- spotlight-field: catalog-url_item_tesim
+  mods:
+      - path: recordInfo/recordIdentifier
+- spotlight-field: finding-aid_tesim
+  mods:
+      - path: relatedItem/location/url
+        attribute: otherType
+        attribute-value: HOLLIS record
