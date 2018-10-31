@@ -118,8 +118,7 @@ module Spotlight
             if (!code.blank?)
               item = nil
               if data_type == "lang"
-                require 'language'
-                item = Language.find_by(code: code)
+                item = Cnalanguage.find_by(code: code)
               else
                 item = Origin.find_by(code: code)
               end
