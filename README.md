@@ -26,6 +26,7 @@ Furthermore, this engine runs the harvester as a background job.  To set up the 
 in your Spotlight Gemfile:
 ```ruby 
 gem 'delayed_job_active_record'
+gem 'daemons'
 ```
 
 Add the delayed_job initializer to config/initializers/delayed_job.rb.  Here is a sample delayed_job.rb file:

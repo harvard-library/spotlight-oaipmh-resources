@@ -46,17 +46,19 @@
         mods-value: creator
 - spotlight-field: start-date_tesim
   mods:
-      - path: originInfo/dateIssued
+      - path: originInfo/dateCreated
         attribute: point
         attribute-value: start
 - spotlight-field: end-date_tesim
   mods:
-      - path: originInfo/dateIssued
+      - path: originInfo/dateCreated
         attribute: point
         attribute-value: end
 - spotlight-field: date_tesim
   mods:
-      - path: originInfo/dateOther
+      - path: originInfo/dateCreated
+        attribute: "!point"
+        attribute-value:
 - spotlight-field: contributer_tesim
   mods:
       - path: name/namePart
@@ -100,7 +102,7 @@
           - subpath: topic
           - subpath: genre
 - spotlight-field: type_ssim
-  delimiter: "|"
+  delimiter: ", "
   mods:
       - path: genre
 - spotlight-field: origin_ssim

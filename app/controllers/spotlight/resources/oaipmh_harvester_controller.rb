@@ -27,6 +27,7 @@ module Spotlight::Resources
     
     def upload
       name = resource_params[:custom_mapping].original_filename
+      Dir.mkdir("public/uploads") unless Dir.exist?("public/uploads")  
       dir = "public/uploads/modsmapping"
       Dir.mkdir(dir) unless Dir.exist?(dir)
       
@@ -38,6 +39,7 @@ module Spotlight::Resources
     def resource_params
       params.require(:resources_oaipmh_harvester).permit(:url, :set, :mapping_file, :custom_mapping)
     end
+       
     
   end
 

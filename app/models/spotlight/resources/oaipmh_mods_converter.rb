@@ -9,8 +9,21 @@ module Spotlight::Resources
     attr_accessor :mods_path, :mods_attribute, :mods_attribute_value, :conditional_mods_value, :conditional_mods_path
   end
   class ConverterItem
-    attr_accessor :spotlight_field, :mods_items, :default_value, :delimiter
+    attr_accessor :spotlight_field, :mods_items, :default_value, :delimiter, :xpath_string, :xpath_namespace_def, :xpath_namespace_prefix
+    
     RESERVED_WORDS = {'name'=> "name_el", 'description' => 'description_el', 'type' => 'type_at'}
+    TOP_LEVEL_ELEMENTS_SIMPLE = [
+        'abstract',
+        'accessCondition',
+        'classification',
+        'extension',
+        'genre',
+        'identifier',
+        'note',
+        'tableOfContents',
+        'targetAudience',
+        'typeOfResource',
+        ]
         
     def initialize()
       delimiter = ", "
@@ -23,6 +36,7 @@ module Spotlight::Resources
         #Throw error if path value fails
         begin
           node = modsrecord.mods_ng_xml
+          
           retvalues = parse_paths(item, node)
           if (retvalues.empty? && !default_value.blank?)
             value = default_value
@@ -43,13 +57,13 @@ module Spotlight::Resources
         values.join(delimiter) 
       end
     end
-      
+
     
     #Creates the proper path and subpath names to use since some words may be reserved.
     #It then uses these paths to search for the value in the Mods::Record
     def parse_paths(item, parentnode)
       path_array = item.mods_path.path.split("/")
-      if (!item.mods_path.path.eql?("accessCondition") && !item.mods_path.path.eql?("typeOfResource"))
+      if (!TOP_LEVEL_ELEMENTS_SIMPLE.include?(item.mods_path.path))
         path_array[0] = path_array[0].split(/(?<!^)(?=[A-Z])/)
         path_array[0] = path_array[0].join("_").downcase
       end
@@ -232,7 +246,7 @@ end
   class OaipmhModsConverter
     RESERVED_PATHS = {'name/namePart'=> "plain_name/namePart", "name/role/roleTerm" => "plain_name/role/roleTerm"}
     STANDARD_SPOTLIGHT_FIELDS = ['unique-id_tesim', 'full_title_tesim', 'spotlight_upload_description_tesim', 'thumbnail_url_ssm', 'full_image_url_ssm', 'spotlight_upload_date_tesim"', 'spotlight_upload_attribution_tesim']
-    
+      
     attr_accessor :sidecar_hash
        
     #Initialize with the name of the set being converted
@@ -253,9 +267,33 @@ end
       solr_hash = {}
         
       @converter_items.each do |item|
-        value = item.extract_value(modsrecord)
-        solr_hash[get_spotlight_field_name(item.spotlight_field)] = value
-        @sidecar_hash[item.spotlight_field] = value
+        node = modsrecord.mods_ng_xml
+        value = nil
+        if (!item.xpath_string.nil?)
+          values = Array.new
+          if (!item.xpath_namespace_def.nil?)
+          retnodes = node.xpath(item.xpath_string, {item.xpath_namespace_prefix => item.xpath_namespace_def})
+          else
+            retnodes = node.xpath(item.xpath_string)
+          end
+          if (retnodes.empty? && !item.default_value.blank?)
+            value = item.default_value
+            values << value
+          elsif (!retnodes.empty?)
+            retnodes.each do |retnode|
+              values << retnode.text
+            end
+          end
+          if (!values.empty?)
+            value = values.join(item.delimiter)
+          end
+        else
+          value = item.extract_value(modsrecord)
+        end
+        if (!value.nil? && !value.empty?)
+          solr_hash[get_spotlight_field_name(item.spotlight_field)] = value
+          @sidecar_hash[item.spotlight_field] = value
+        end
       end
       solr_hash
     end
@@ -303,56 +341,77 @@ end
         item.default_value = field["default-value"]
       end
       
-      item.mods_items = Array.new
-      field['mods'].each do |mods_field|
-        modsitem = ModsItem.new
-        #validate the path is not null
-        if (!mods_field.key?("path") || mods_field['path'].blank?)
-          raise InvalidMappingFile, "path is required for each mods entry"
+      #must have a mods or xpath 
+      if (!field.key?("mods") && (!field.key?('xpath') || field['xpath'].blank?))
+        raise InvalidMappingFile, "mods or xpath is required for each entry"
+      end
+      
+      #Can only have mods OR xpath
+      if (field.key?('mods') && field.key('xpath'))
+        raise InvalidMappingFile, "Use either mods OR xpath for each entry but not both"
+      end
+      
+      #if using xpath, then add the values from xpath
+      if (field.key?('xpath'))
+        item.xpath_string = field['xpath']
+        if (field.key?('xpath_namespace_prefix') && field.key?('xpath_namespace_def'))
+          item.xpath_namespace_def = field['xpath_namespace_def']
+          item.xpath_namespace_prefix = field['xpath_namespace_prefix']
         end
-             
-        modsitem.mods_path = ModsPath.new
-        #The mods gem has special names for certain reserved words/paths
-        if (RESERVED_PATHS.key?(mods_field['path']))
-          modsitem.mods_path.path = RESERVED_PATHS[mods_field['path']]
+      #otherwise use mods
         else
-          modsitem.mods_path.path = mods_field['path']
-        end
-        
-        
-        if (mods_field.key?('subpaths'))
-          subpaths = Array.new
-          mods_field['subpaths'].each do |subpath|
-            subpaths << subpath['subpath']
+        item.mods_items = Array.new
+        field['mods'].each do |mods_field|
+          modsitem = ModsItem.new
+          #validate the path is not null
+          if (!mods_field.key?("path") || mods_field['path'].blank?)
+            raise InvalidMappingFile, "path is required for each mods entry"
           end
-          modsitem.mods_path.subpaths = subpaths
-        end
-        
-        if (mods_field.key?('delimiter'))
-          modsitem.mods_path.delimiter = mods_field['delimiter']
-        end
-              
-        if (mods_field.key?('attribute'))
-          if (!mods_field.key?('attribute-value'))
-            raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": attribute-value is required if attribute is present" 
-          end
-          modsitem.mods_attribute = mods_field['attribute']
-          modsitem.mods_attribute_value = mods_field['attribute-value']
-        end
-        
-        if (mods_field.key?('mods-path'))
-          if (!mods_field.key?('mods-value'))
-            raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": mods-value is required if mods-path is present" 
-          end
-          if (RESERVED_PATHS.key?(mods_field['mods-path']))
-            modsitem.conditional_mods_path = RESERVED_PATHS[mods_field['mods-path']]
+               
+          modsitem.mods_path = ModsPath.new
+          #The mods gem has special names for certain reserved words/paths
+          if (RESERVED_PATHS.key?(mods_field['path']))
+            modsitem.mods_path.path = RESERVED_PATHS[mods_field['path']]
           else
-            modsitem.conditional_mods_path = mods_field['mods-path']
+            modsitem.mods_path.path = mods_field['path']
+          end
+          
+          
+          if (mods_field.key?('subpaths'))
+            subpaths = Array.new
+            mods_field['subpaths'].each do |subpath|
+              subpaths << subpath['subpath']
+            end
+            modsitem.mods_path.subpaths = subpaths
+          end
+          
+          if (mods_field.key?('delimiter'))
+            modsitem.mods_path.delimiter = mods_field['delimiter']
           end
           modsitem.conditional_mods_value = mods_field['mods-value']
-        end
                 
-        item.mods_items << modsitem
+          if (mods_field.key?('attribute'))
+            if (!mods_field.key?('attribute-value'))
+              raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": attribute-value is required if attribute is present" 
+            end
+            modsitem.mods_attribute = mods_field['attribute']
+            modsitem.mods_attribute_value = mods_field['attribute-value']
+          end
+          
+          if (mods_field.key?('mods-path'))
+            if (!mods_field.key?('mods-value'))
+              raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": mods-value is required if mods-path is present" 
+            end
+            if (RESERVED_PATHS.key?(mods_field['mods-path']))
+              modsitem.conditional_mods_path = RESERVED_PATHS[mods_field['mods-path']]
+            else
+              modsitem.conditional_mods_path = mods_field['mods-path']
+            end
+            modsitem.conditional_mods_value = mods_field['mods-value']
+          end
+                  
+          item.mods_items << modsitem
+        end #mods
       end
       @converter_items << item
     end

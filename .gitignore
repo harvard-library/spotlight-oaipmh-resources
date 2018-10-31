@@ -1,5 +1,6 @@
 log/*
-.internal_test_app/
+.internal_test_app
+.internal_test_app/*
 .project
 .DS_Store
 /log/

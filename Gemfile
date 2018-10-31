@@ -40,4 +40,4 @@ else
 end
 # END ENGINE_CART BLOCK
 
-gem 'blacklight-spotlight', github: 'projectblacklight/spotlight', :tag => 'v0.28.3'
+gem 'blacklight-spotlight', github: 'projectblacklight/spotlight'

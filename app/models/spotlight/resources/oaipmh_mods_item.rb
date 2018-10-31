@@ -8,17 +8,13 @@ module Spotlight::Resources
   class OaipmhModsItem
     extend CarrierWave::Mount
     attr_reader :titles, :id
-    attr_accessor :metadata, :itemurl, :sidecar_data
-    mount_uploader :itemurl, Spotlight::ItemUploader
-    def initialize(exhibit, converter, cna_config)
+    attr_accessor :metadata, :sidecar_data
+    #attr_accessor :metadata, :itemurl, :sidecar_data
+    #mount_uploader :itemurl, Spotlight::ItemUploader
+    def initialize(exhibit, converter)
       @solr_hash = {}
       @exhibit = exhibit
       @converter = converter
-      @catalog_url = nil
-      @finding_aid_url = nil
-      @creator = nil
-      @repository = nil
-      @cna_config = cna_config
     end
     
     def to_solr
@@ -28,7 +24,7 @@ module Spotlight::Resources
     
     def parse_mods_record()
         
-      @modsrecord = Mods::Record.new.from_str(metadata.elements.to_a[0].to_s, false)
+      @modsrecord = Mods::Record.new.from_str(metadata.elements.to_a[0].to_s)
           
       if (@modsrecord.mods_ng_xml.record_info && @modsrecord.mods_ng_xml.record_info.recordIdentifier)
         @id = @modsrecord.mods_ng_xml.record_info.recordIdentifier.text 
@@ -53,111 +49,15 @@ module Spotlight::Resources
       @solr_hash = @converter.convert(@modsrecord)
       @sidecar_data = @converter.sidecar_hash
    end
-   
-   #This pulls the catalog url from the Mods::Record item for OASIS items.  Using the Mods::Record paths fail for this
-   #I suspect that the way the mods gem is written conflicts with the way we have our paths (relatedItem/relatedItem/relatedItem/location/url)
-   def get_catalog_url()
-     if (@catalog_url.nil?)
-       node = @modsrecord.mods_ng_xml.xpath(@cna_config['HOLLIS_RECORD_XPATH'])
-       if (!node.blank?)
-         @catalog_url = node.text
-       else
-         @catalog_url = ""
-       end   
-     end
-     @catalog_url
-   end
-   
-  #This pulls the finding aid url from the Mods::Record item for OASIS items.  Using the Mods::Record paths fail for this
-  #I suspect that the way the mods gem is written conflicts with the way we have our paths (relatedItem/relatedItem/relatedItem/location/url)
-  def get_finding_aid()
-     if (@finding_aid_url.nil?)
-       node = @modsrecord.mods_ng_xml.xpath(@cna_config['FINDING_AID_XPATH'])
-       if (!node.blank?)
-         @finding_aid_url = node.text
-       else
-         @finding_aid_url = ""
-       end
-     end
-     @finding_aid_url
-   end
-
-  #This pulls the creator from the Mods::Record item for OASIS items.  Using the Mods::Record paths fail for this
-  #I suspect that the way the mods gem is written conflicts with the way we have our paths (relatedItem/relatedItem/relatedItem/name/namePart)
-  def get_creator()
-     if (@creator.nil?)
-       node = @modsrecord.mods_ng_xml.related_item.xpath(@cna_config['CREATOR_XPATH'])
-       if (!node.blank?)
-         node.role.roleTerm.each do |roleTerm|
-           if (roleTerm.text.eql?('creator'))
-             @creator = node.namePart.text
-           end
-         end
-       else
-         @creator = ""
-       end
-     end
-     @creator
-   end
-
-  #This pulls the repository from the Mods::Record item for OASIS items.  Using the Mods::Record paths fail for this
-  #I suspect that the way the mods gem is written conflicts with the way we have our paths (nested related items)
-  def get_repository()
-     if (@repository.nil?)
-       node = @modsrecord.mods_ng_xml.related_item.xpath(@cna_config['REPOSITORY_XPATH'])
-       if (!node.blank?)
-         @repository = node.text
-       else
-         @repository = ""
-       end
-     end
-     @repository
-   end
-   
-   #This pulls the collection title from the Mods::Record item for OASIS items.  Using the Mods::Record paths fail for this
-  #I suspect that the way the mods gem is written conflicts with the way we have our paths (nested related items)
-  def get_collection_title()
-     if (@collectiontitle.nil?)
-       titlenode = @modsrecord.mods_ng_xml.xpath(@cna_config['COLLECTION_TITLE_XPATH'])
-       datenode = @modsrecord.mods_ng_xml.xpath(@cna_config['COLLECTION_TITLE_DATE_XPATH'])
-       if (!titlenode.blank? && !datenode.blank?)
-         @collectiontitle = titlenode.text + " " + datenode.text
-       elsif (!titlenode.blank?)
-         @collectiontitle = titlenode.text
-       else
-         @collectiontitle = ""
-       end
-     end
-     @collectiontitle
-   end
-    
+  
    # private
     
     attr_reader :solr_hash, :exhibit
     
-    #Resolves urn-3 uris
-    def fetch_ids_uri(uri_str)
-      if (uri_str =~ /urn-3/)
-        response = Net::HTTP.get_response(URI.parse(uri_str))['location']
-      elsif (uri_str.include?('?'))
-        uri_str = uri_str.slice(0..(uri_str.index('?')-1))
-      else
-        uri_str
-      end
-    end
     
-    #Returns the uri for the iiif manifest
-    def transform_ids_uri_to_iiif_manifest(ids_uri)
-      #Strip of parameters
-      uri = ids_uri.sub(/\?.+/, "")
-      #Change /view/ to /iiif/
-      uri = uri.sub(%r|/view/|, "/iiif/")
-      #Append /info.json to end
-      uri = uri + "/info.json"
-    end
     
     def add_document_id
-      solr_hash[:id] = @id
+      solr_hash[:id] = @id.to_s
     end
   
   end

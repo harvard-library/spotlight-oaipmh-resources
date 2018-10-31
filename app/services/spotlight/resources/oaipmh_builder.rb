@@ -13,8 +13,6 @@ module Spotlight
           mapping_file = resource.data[:mapping_file]
         end
         
-        @cna_config = YAML.load_file(Spotlight::Oaipmh::Resources::Engine.root + 'config/cna_config.yml')[Rails.env]
-        
         @oai_mods_converter = OaipmhModsConverter.new(resource.data[:set], resource.exhibit.slug, mapping_file)
         
         harvests = resource.oaipmh_harvests
@@ -26,7 +24,7 @@ module Spotlight
             last_page_evaluated = true
           end
           harvests.each do |record|
-            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter, @cna_config)
+            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter)
             
             @item.metadata = record.metadata
             @item.parse_mods_record()
@@ -82,9 +80,7 @@ module Spotlight
             resumption_token = harvests.resumption_token
           end
         end
-        
       end
-      
    
       #Adds the solr image info
       def add_image_info(fullurl, thumb, square)
@@ -376,23 +372,14 @@ private
           add_image_dimensions(fullimagefile)
         end
       end
-
  
       def uniquify_repos(repository_field_name)
         
         #If the repository exists, make sure it has unique values
         if (@item_solr.key?(repository_field_name) && !@item_solr[repository_field_name].blank?)
           repoarray = @item_solr[repository_field_name].split("|")
-          if (@item.id.eql?('000603974'))
-            Delayed::Worker.logger.add(Logger::DEBUG, 'REPO FOR 000603974>>>>>>')
-            Delayed::Worker.logger.add(Logger::DEBUG, @item_solr[repository_field_name])
-          end
           repoarray = repoarray.uniq
           repo = repoarray.join("|")
-          if (@item.id.eql?('000603974'))
-            Delayed::Worker.logger.add(Logger::DEBUG, 'UNIQUE FOR 000603974>>>>>>')
-            Delayed::Worker.logger.add(Logger::DEBUG, repo)
-          end
           @item_solr[repository_field_name] = repo
           @item_sidecar["repository_ssim"] = repo
         end
@@ -415,6 +402,27 @@ private
           @item_solr[end_date_name] = dates
           @item_sidecar["end-date_tesim"] = dates
         end
+      end
+      
+      #Resolves urn-3 uris
+      def fetch_ids_uri(uri_str)
+        if (uri_str =~ /urn-3/)
+          response = Net::HTTP.get_response(URI.parse(uri_str))['location']
+        elsif (uri_str.include?('?'))
+          uri_str = uri_str.slice(0..(uri_str.index('?')-1))
+        else
+          uri_str
+        end
+      end
+    
+      #Returns the uri for the iiif
+      def transform_ids_uri_to_iiif(ids_uri)
+        #Strip of parameters
+        uri = ids_uri.sub(/\?.+/, "")
+        #Change /view/ to /iiif/
+        uri = uri.sub(%r|/view/|, "/iiif/")
+        #Append /info.json to end
+        uri = uri + "/full/180,/0/native.jpg"
       end
 
     end

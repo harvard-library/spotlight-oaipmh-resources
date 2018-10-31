@@ -13,71 +13,58 @@
 #          subpaths: 
 #            - subpath: xxx
 #            - subpath: xxx
+#    xpath: xxx
+#    xpath_namespace_prefix: xxx
+#    xpath_namespace_def: xxx
 #
+#
+
   # In CNA, this field has to append a urn if the record type is item - Michael may have to do this one
 - spotlight-field: unique-id_tesim
   mods:
       - path: recordInfo/recordIdentifier
-- spotlight-field: record-type_ssim
-  mods:
-      - path: typeOfResource
-        attribute: collection
-        attribute-value: 'yes'
 - spotlight-field: full_title_tesim
-  delimiter: ": "
   mods:
       - path: titleInfo
-        delimiter: " "
+        delimiter: ": "
         subpaths:
-          - subpath: nonSort
           - subpath: title
-      - path: titleInfo/subTitle
+          - subpath: subTitle
+- spotlight-field: citation-title_tesim
+  mods:
+      - path: titleInfo/title
 - spotlight-field: collection-title_ssim
   mods:
       - path: relatedItem
         delimiter: " "
-        attribute: displayLabel
-        attribute-value: collection
         subpaths: 
           - subpath: titleInfo/title
-          - subpath: originInfo/dateCreated
-- spotlight-field: citation-title_tesim
-  mods:
-      - path: titleInfo/title
+        attribute: displayLabel
+        attribute-value: collection       
 - spotlight-field: creator_tesim
+  delimiter: " , "
   mods:
-      - path: plain_name
-        delimiter: " , "
-        mods-path: role/roleTerm
+      - path: name/namePart
+        mods-path: name/role/roleTerm
         mods-value: creator
-        subpaths:
-          - subpath: namePart
 - spotlight-field: start-date_tesim
   mods:
-      - path: originInfo/dateCreated
-        delimiter: "|"
+      - path: originInfo/dateIssued
         attribute: point
         attribute-value: start
 - spotlight-field: end-date_tesim
   mods:
-      - path: originInfo/dateCreated
-        delimiter: "|"
+      - path: originInfo/dateIssued
         attribute: point
         attribute-value: end
 - spotlight-field: date_tesim
   mods:
-      - path: originInfo/dateCreated
-        attribute: '!point'
-        attribute-value: 
+      - path: originInfo/dateOther
 - spotlight-field: contributer_tesim
-  delimiter: " , "
   mods:
-      - path: plain_name
-        delimiter: " , "
-        mods-path: role/roleTerm
+      - path: name/namePart
+        mods-path: name/role/roleTerm
         mods-value: '!creator'
-        subpaths:
-          - subpath: namePart
 - spotlight-field: spotlight_upload_description_tesim
   delimiter: "|"
   mods: 
@@ -85,17 +72,18 @@
       - path: note
         attribute: type
         attribute-value: 
+- spotlight-field: finding-aid_tesim
+  mods:
+      - path: note  # this needs to be parsed
 - spotlight-field: format_tesim
   delimiter: "|"
   mods:
       - path: physicalDescription/extent
 - spotlight-field: language_ssim
   default-value: eng
-  delimiter: "|"
   mods: 
       - path: language/languageTerm
 - spotlight-field: repository_ssim
-  delimiter: "|"
   mods:
       - path: location/physicalLocation
         attribute: type
@@ -113,7 +101,6 @@
         subpaths:
           - subpath: name/namePart
           - subpath: topic
-          - subpath: geographic
           - subpath: genre
 - spotlight-field: type_ssim
   delimiter: "|"
@@ -158,35 +145,11 @@
       - path: note
         attribute: type
         attribute-value: publications
-- spotlight-field: funding_tesim
-  mods:
-      - path: note
-        attribute: type
-        attribute-value: funding
-- spotlight-field: funding_ssim
-  mods:
-      - path: note
-        attribute: type
-        attribute-value: funding
-- spotlight-field: mirador-url_tesim
-  mods:
-      - path: location/url
-        attribute: access
-        attribute-value: raw object
-- spotlight-field: thumbnail_url_ssm
-  mods:
-      - path: location/url
-        attribute: access
-        attribute-value: preview
-- spotlight-field: rights_tesim
-  mods:
-      - path: accessCondition
-- spotlight-field: catalog-url_item_tesim
-  mods:
-      - path: recordInfo/recordIdentifier
-- spotlight-field: finding-aid_tesim
-  mods:
-      - path: relatedItem/location/url
-        attribute: otherType
-        attribute-value: HOLLIS record
+- spotlight-field: xpath-test_ssim
+  xpath: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+- spotlight-field: xpath-test-harvard-namespace_ssim
+  xpath: "//HarvardDRS:DRSMetadata/HarvardDRS:ownerCode"
+  xpath_namespace_prefix: "HarvardDRS"
+  xpath_namespace_def: "http://hul.harvard.edu/ois/xml/ns/HarvardDRS"          
+        
           

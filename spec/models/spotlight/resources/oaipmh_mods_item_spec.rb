@@ -3,8 +3,8 @@ require 'spec_helper'
 
   RSpec.describe Spotlight::Resources::OaipmhModsItem, type: :model do
     let(:exhibit) { FactoryGirl.create(:exhibit) }
-    let(:converter) { Spotlight::Resources::OaipmhModsConverter.new('CNA', 'test-exhibit-name',File.dirname(__FILE__) + "/../../../fixtures/files/mapping_sample.yml")}
-    subject { described_class.new(exhibit, converter, YAML.load_file(Spotlight::Oaipmh::Resources::Engine.root + 'config/cna_config.yml')) }
+    let(:converter) { Spotlight::Resources::OaipmhModsConverter.new('CNA', 'test-exhibit-name')}
+    subject { described_class.new(exhibit, converter) }
       
       describe "fetch_ids_uri" do
           context "given a url with a urn-3" do

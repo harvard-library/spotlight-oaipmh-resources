@@ -2,23 +2,22 @@ require 'spec_helper'
 require 'yaml'
 require 'oai'
 require 'nokogiri'
-require 'language'
 require 'xml/libxml'
 
 include OAI::XPath
             
 
   RSpec.describe Spotlight::Resources::OaipmhModsConverter, type: :model do
-    subject { described_class.new('CNA', 'test-exhibit-name',File.dirname(__FILE__) + "/../../../fixtures/files/cna_mapping.yml") }
-    let(:abc_set) {described_class.new('ABC', 'test-exhibit-name',File.dirname(__FILE__) + "/../../../fixtures/files/mapping_sample.yml")}
+    subject { described_class.new('CNA', 'test-exhibit-name', file_fixture("mapping_sample.yml")) }
+    let(:abc_set) {described_class.new('ABC', 'test-exhibit-name')}
       
-      describe 'cna_mapping_config_file_exists' do
+      describe 'mapping_config_file_exists' do
         context 'given a set name' do
           it 'verifies that the mapping file exists' do
             mapping_file = subject.mapping_file
             #expect(File.basename(mapping_file)).to eq('mapping.yml')
             print mapping_file + "\n"
-            expect(File.basename(mapping_file)).to match(/cna_mapping.yml/i)
+            expect(File.basename(mapping_file)).to match(/mapping_sample.yml/i)
           end
         end
       end
@@ -28,15 +27,15 @@ include OAI::XPath
           it 'verifies that the expected fields exist' do
             fixture_mapping_file = file_fixture("mapping_sample.yml")
             mapping_config = YAML.load_file(fixture_mapping_file)
-            
+            subject.parse_mapping_file(fixture_mapping_file)
+                        
             require 'xml/libxml'
             fixture_mods_file = file_fixture("mods_sample.xml")
             
             doc = LibXML::XML::Document.file(fixture_mods_file.to_s)
             modsonly = xpath_first(doc, "//*[local-name()='mods']")
             modsrecord = Mods::Record.new.from_str(modsonly.to_s)
-            
-            
+
             solr_hash = subject.convert(modsrecord)
             expect(solr_hash['unique-id_tesim']).to eq("007139874")
             #expect(solr_hash['record-type_ssim']).to eq("collection")
@@ -81,120 +80,26 @@ include OAI::XPath
         end
       end
       
-      describe 'cna mapping sample single item' do
-        context 'given a set name' do
-          it 'verifies that the expected fields exist' do
-            fixture_mapping_file = file_fixture("mapping_sample.yml")
+      
+      describe 'xpath mapping sample single item' do
+        context 'given an xpath in the mapping file' do
+          it 'verifies that the xpath exists and is populated properly' do
+            fixture_mapping_file = file_fixture("mapping_sample_with_xpath.yml")
             mapping_config = YAML.load_file(fixture_mapping_file)
+            subject.parse_mapping_file(fixture_mapping_file)
             
-            
-            fixture_mods_file = file_fixture("mods_sample_single_item.xml")
+            fixture_mods_file = file_fixture("mods_sample_item.xml")
             
             doc = LibXML::XML::Document.file(fixture_mods_file.to_s)
             modsonly = xpath_first(doc, "//*[local-name()='mods']")
             modsrecord = Mods::Record.new.from_str(modsonly.to_s)
             
-            mynode = modsrecord.mods_ng_xml.send('name')
-            
             solr_hash = subject.convert(modsrecord)
-            expect(solr_hash['unique-id_tesim']).to eq("008704078")
-            #expect(solr_hash['exhibit_test-exhibit-name_record-type_ssim']).to eq("item")
-            expect(solr_hash['full_title_tesim']).to eq("Commission of Noah Cooke, Jr., as chaplain in the Continental Army, signed by John Hancock, 1776 January 1")
-            expect(solr_hash['exhibit_test-exhibit-name_collection-title_ssim']).to be_nil
-            #expect(solr_hash['citation-title_tesim']).to eq("Mr. Webster's Dudleian lecture on Presbyterian ordination: lecture [delivered], Sept. 7, 1774")
-            expect(solr_hash['exhibit_test-exhibit-name_creator_tesim']).to eq("United States , Continental Congress.")
-            expect(solr_hash['exhibit_test-exhibit-name_start-date_tesim']).to be_nil
-            expect(solr_hash['exhibit_test-exhibit-name_end-date_tesim']).to be_nil
-            expect(solr_hash['exhibit_test-exhibit-name_date_tesim']).to eq("1776")
-            expect(solr_hash['exhibit_test-exhibit-name_contributer_tesim']).to eq("Hancock, John , 1737-1793 , Cooke, Noah , 1749-1829")
-           #expect(solr_hash['spotlight_upload_description_tesim']).to eq('Commission of Noah Cooke, Jr., as chaplain in the Continental Army, signed by John Hancock, 1 January 1776.|Transcription of document: "In Congress. The delegates of the United Colonies of New-Hampshire, Massachusetts-Bay, Rhode-Island, Connecticut, New-York, New-Jersey, Pennsylvania, the Counties of Newcastle, Kent, and Suffolk on Delaware, Maryland, Virginia, North-Carolina, and South Carolina to the Reverend Noah Cooke Junr. We [...] do by these presents constitute and appoint you to be Chaplain of the fifth Regiment of Foot Commanded by Colonel John Stark, and to the eighth Regiment Commanded by Colonel Enoch Poor in the army of the United Colonies, raised for the defense of American Liberty, and for repelling every invasion thereof [...].|Title supplied by cataloger.|Transferred from the Fogg Art Museum (originally received from one of the Harvard houses) to the Harvard University Library on September 14, 1955. On the verso there is a Harvard University Library stamp in black ink; the month "SEP" is included in the stamp. The remainder of the date was added in graphite: "14, 1955".|Pasted to paperboard backing.')
-            expect(solr_hash['exhibit_test-exhibit-name_format_tesim']).to eq(".14 linear feet (1 document)")
-            expect(solr_hash['exhibit_test-exhibit-name_language_ssim']).to eq("eng")
-            expect(solr_hash['exhibit_test-exhibit-name_repository_ssim']).to eq("HUA")
-            #expect(solr_hash['exhibit_test-exhibit-name_subjects_ssim']).to eq("Cooke, Noah|United States.--Continental Army--Chaplains|Military chaplains--United States|United States--History--sources")
-            expect(solr_hash['exhibit_test-exhibit-name_type_ssim']).to eq("Commissions (permissions).")
-            expect(solr_hash['exhibit_test-exhibit-name_origin_ssim']).to eq("xxu")
-            expect(solr_hash['exhibit_test-exhibit-name_biography_tesim']).to eq('Noah Cooke, Jr. (1749-1829) earned his Harvard AB 1769. His early career was as a clergyman, but he later became a lawyer. He was admitted to the bar in Cheshire County, New Hampshire in 1784. He practiced law in New Ipswich and Keene. Cooke held a variety of local offices in Keene. See biographical sketch in Sibley\'s Harvard Graduates, Vol. XVII.')
-            expect(solr_hash['exhibit_test-exhibit-name_statement-of-responsibility_tesim']).to be_nil
-            expect(solr_hash['exhibit_test-exhibit-name_physical-form_tesim']).to be_nil
-            expect(solr_hash['exhibit_test-exhibit-name_language-info_tesim']).to be_nil
-            expect(solr_hash['exhibit_test-exhibit-name_publications_tesim']).to be_nil
+            expect(solr_hash['exhibit_test-exhibit-name_xpath-test_ssim']).to eq("Houghton Library, Harvard Library, Harvard University")
+            expect(solr_hash['exhibit_test-exhibit-name_xpath-test-harvard-namespace_ssim']).to eq("FHCL.HOUGH")
           end
         end
-      end
-      
-      describe 'parse cna mods single item' do
-       context 'get the hollis record and finding aid' do
-         it 'verifies that the expected fields exist' do
-           fixture_mods_file = file_fixture("mods_sample_single_item.xml")
-           cna_config = YAML.load_file(file_fixture('cna_config.yml'))['development']
-           
-           doc = LibXML::XML::Document.file(fixture_mods_file.to_s)
-           modsonly = xpath_first(doc, "//*[local-name()='mods']")
-           modsrecord = Mods::Record.new.from_str(modsonly.to_s)
-                       
-           fa = modsrecord.mods_ng_xml.xpath(cna_config['FINDING_AID_XPATH'])
-             if (fa.blank?)
-               fa = nil
-         
-             end
-           hr = modsrecord.mods_ng_xml.xpath(cna_config['HOLLIS_RECORD_XPATH'])
-           expect(fa).to be_nil
-           expect(hr.text).to eq("http://id.lib.harvard.edu/aleph/008704078/catalog")
-         end
-       end
-     end
-     
-     describe 'parse cna mods sample item' do
-       context 'get the hollis record and finding aid' do
-         it 'verifies that the expected fields exist' do
-           fixture_mods_file = file_fixture("mods_sample_item.xml")
-           cna_config = YAML.load_file(file_fixture('cna_config.yml'))['development']
-           
-           doc = LibXML::XML::Document.file(fixture_mods_file.to_s)
-           modsonly = xpath_first(doc, "//*[local-name()='mods']")
-           modsrecord = Mods::Record.new.from_str(modsonly.to_s)
-           fa = modsrecord.mods_ng_xml.xpath(cna_config['FINDING_AID_XPATH'])
-           hr = modsrecord.mods_ng_xml.xpath(cna_config['HOLLIS_RECORD_XPATH'])
-           expect(fa.text).to eq("http://id.lib.harvard.edu/ead/hou01499/catalog")
-           expect(hr.text).to eq("http://id.lib.harvard.edu/aleph/000601800/catalog")                      
-         end
-       end
-     end 
-     
-     describe 'parse cna mods sample item with multiple repositories' do
-       context 'repository' do
-         it 'verifies that only one repository is used' do
-           fixture_mods_file = file_fixture("mods_sample_item_many_repos.xml")
-           
-           doc = LibXML::XML::Document.file(fixture_mods_file.to_s)
-           modsonly = xpath_first(doc, "//*[local-name()='mods']")
-           modsrecord = Mods::Record.new.from_str(modsonly.to_s)
-           solr_hash = subject.convert(modsrecord)
-           repoarray = solr_hash['exhibit_test-exhibit-name_repository_ssim'].split("|")
-           repoarray = repoarray.uniq
-           repo = repoarray.join("|")
-
-           expect(repo).to eq("Harvard University Archives")
-         end
-       end
-     end 
-     
-     
-     describe 'parse cna mods sample item with irregular title' do
-       context 'titles with irregular sort/non sort settings' do
-         it 'verifies that the full title is being populated' do
-           fixture_mods_file = file_fixture("mods_sample_odd_title.xml")
-           
-           doc = LibXML::XML::Document.file(fixture_mods_file.to_s)
-           modsonly = xpath_first(doc, "//*[local-name()='mods']")
-           modsrecord = Mods::Record.new.from_str(modsonly.to_s)
-           solr_hash = subject.convert(modsrecord)
-           title = solr_hash['full_title_tesim']
-           expect(title).to eq("A system of ethicks: Of morall phylosophy in generall & in speciall")
-         end
-       end
-     end  
+      end 
      
      
       describe 'parse mapping file' do
