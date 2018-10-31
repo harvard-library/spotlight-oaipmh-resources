@@ -169,7 +169,7 @@ private
           #if it is a regular date, use the decades
           if (is_date_int(start_date) && is_date_int(end_date))
             range = calculate_ranges(start_date, end_date)
-          elsif (start_date.include?('u') || end_date.include('u'))
+          elsif (start_date.include?('u') || end_date.include?('u'))
             range = "Undetermined date"
           end
         end
