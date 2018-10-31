@@ -40,11 +40,7 @@ module Spotlight
               create_year_ranges()
               
               record_type_field_name = @oai_mods_converter.get_spotlight_field_name("record-type_ssim")
-                 
-              ##CNA Specific - catalog
-              catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
-              catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
-         
+
               #THIS IS SPECIFIC TO CNA   
               repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
               
@@ -53,14 +49,6 @@ module Spotlight
               if (!@item_solr[funding_field_name].nil? && @item_solr[funding_field_name].include?("Polonsky"))
                   @item_solr[funding_field_name] = "The Polonsky Foundation"
                   @item_sidecar["funding_ssim"] = "The Polonsky Foundation"
-              end
-                                                
-              #If the collection field is populated then it is a collection, otherwise it is an item.
-              if (!@item_solr[record_type_field_name].nil? && !@item_solr[record_type_field_name].eql?("item"))
-                set_collection_specific_data(record_type_field_name)
-              else
-                set_item_specific_data(record_type_field_name)
-                process_images()
               end
   
               uniquify_repos(repository_field_name)
@@ -226,26 +214,7 @@ private
       
       def is_date_int(date)
         true if Integer(date) rescue false
-      end
-      
-      
-      def set_collection_specific_data(record_type_field_name)
-        catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
-        catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
-               
-        @item_solr[record_type_field_name] = "collection"
-        @item_sidecar["record-type_ssim"] = "collection"
-          
-        ##CNA Specific - catalog
-        if (@item_solr.key?(catalog_url_item) && !@item_solr[catalog_url_item].nil?)
-          @item_solr[catalog_url_field_name] = @cna_config['ALEPH_URL'] + @item_solr[catalog_url_item] + "/catalog"
-          collection_id_tesim = @oai_mods_converter.get_spotlight_field_name("collection_id_tesim")
-          @item_solr[collection_id_tesim] = @item_solr[catalog_url_item]
-          @item_sidecar["collection_id_tesim"] = @item_solr[catalog_url_item]
-          @item_solr.delete(catalog_url_item)  
-        end
-      end
-      
+      end     
 
       
       def process_images()
