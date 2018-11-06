@@ -13,6 +13,8 @@ module Spotlight
           mapping_file = resource.data[:mapping_file]
         end
         
+        @cna_config = YAML.load_file(Spotlight::Oaipmh::Resources::Engine.root + 'config/cna_config.yml')[Rails.env]
+        
         @oai_mods_converter = OaipmhModsConverter.new(resource.data[:set], resource.exhibit.slug, mapping_file)
         
         harvests = resource.oaipmh_harvests
@@ -24,7 +26,7 @@ module Spotlight
             last_page_evaluated = true
           end
           harvests.each do |record|
-            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter)
+            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter, @cna_config)
             
             @item.metadata = record.metadata
             @item.parse_mods_record()
@@ -40,7 +42,11 @@ module Spotlight
               create_year_ranges()
               
               record_type_field_name = @oai_mods_converter.get_spotlight_field_name("record-type_ssim")
-
+                 
+              ##CNA Specific - catalog
+              catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
+              catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
+         
               #THIS IS SPECIFIC TO CNA   
               repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
               
@@ -49,6 +55,14 @@ module Spotlight
               if (!@item_solr[funding_field_name].nil? && @item_solr[funding_field_name].include?("Polonsky"))
                   @item_solr[funding_field_name] = "The Polonsky Foundation"
                   @item_sidecar["funding_ssim"] = "The Polonsky Foundation"
+              end
+                                                
+              #If the collection field is populated then it is a collection, otherwise it is an item.
+              if (!@item_solr[record_type_field_name].nil? && !@item_solr[record_type_field_name].eql?("item"))
+                set_collection_specific_data(record_type_field_name)
+              else
+                set_item_specific_data(record_type_field_name)
+                process_images()
               end
   
               uniquify_repos(repository_field_name)
@@ -214,8 +228,82 @@ private
       
       def is_date_int(date)
         true if Integer(date) rescue false
-      end     
+      end
+      
+      
+      def set_collection_specific_data(record_type_field_name)
+        catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
+        catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
+               
+        @item_solr[record_type_field_name] = "collection"
+        @item_sidecar["record-type_ssim"] = "collection"
+          
+        ##CNA Specific - catalog
+        if (@item_solr.key?(catalog_url_item) && !@item_solr[catalog_url_item].nil?)
+          @item_solr[catalog_url_field_name] = @cna_config['ALEPH_URL'] + @item_solr[catalog_url_item] + "/catalog"
+          collection_id_tesim = @oai_mods_converter.get_spotlight_field_name("collection_id_tesim")
+          @item_solr[collection_id_tesim] = @item_solr[catalog_url_item]
+          @item_sidecar["collection_id_tesim"] = @item_solr[catalog_url_item]
+          @item_solr.delete(catalog_url_item)  
+        end
+      end
+      
+      
+      def set_item_specific_data(record_type_field_name)
+        catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
+        catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
+        repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
+                         
+        @item_solr[record_type_field_name] = "item"
+        @item_sidecar["record-type_ssim"] = "item"
+        
+        ##CNA Specific
+        catalog_url = @item.get_catalog_url
+        if (!catalog_url.blank?)
+          @item_solr[catalog_url_field_name] = catalog_url
+          #Extract the ALEPH ID from the URL
+          catalog_url_array = catalog_url.split('/').last(2)
+          collection_id_tesim = @oai_mods_converter.get_spotlight_field_name("collection_id_tesim")
+          @item_solr[collection_id_tesim] = catalog_url_array[0]
+          @item_sidecar["collection_id_tesim"] = catalog_url_array[0]
+        end
 
+        finding_aid_url = @item.get_finding_aid
+        if (!finding_aid_url.blank?)
+          finding_aid_url_field_name = @oai_mods_converter.get_spotlight_field_name("finding-aid_tesim")
+          @item_solr[finding_aid_url_field_name] = finding_aid_url
+          @item_sidecar["finding-aid_tesim"] = finding_aid_url
+        end 
+        
+        #If the creator doesn't exist from the mapping, we have to extract it from the related items (b/c it is an EAD component)
+        creator_field_name = @oai_mods_converter.get_spotlight_field_name("creator_tesim")
+        if (!@item_solr.key?(creator_field_name) || @item_solr[creator_field_name].blank?)
+          creator = @item.get_creator
+          if (!creator.blank?)
+            @item_solr[creator_field_name] = creator
+            @item_sidecar["creator_tesim"] = creator
+          end
+        end
+        
+        #If the repository doesn't exist from the mapping, we have to extract it from the related items (b/c it is an EAD component)
+        if (!@item_solr.key?(repository_field_name) || @item_solr[repository_field_name].blank?)
+          repo = @item.get_repository
+          if (!repo.blank?)
+            @item_solr[repository_field_name] = repo
+            @item_sidecar["repository_ssim"] = repo
+          end
+        end
+      
+        #If the collection title doesn't exist from the mapping, we have to extract it from the related items (b/c it is an EAD component)
+        coll_title_field_name = @oai_mods_converter.get_spotlight_field_name("collection-title_ssim")
+        if (!@item_solr.key?(coll_title_field_name) || @item_solr[coll_title_field_name].blank?)
+          colltitle = @item.get_collection_title
+          if (!colltitle.blank?)
+            @item_solr[coll_title_field_name] = colltitle
+            @item_sidecar["collection-title_ssim"] = colltitle
+          end
+        end
+      end
       
       def process_images()
         if (@item_solr.key?('thumbnail_url_ssm') && !@item_solr['thumbnail_url_ssm'].blank? && !@item_solr['thumbnail_url_ssm'].eql?('null'))           
