@@ -54,6 +54,7 @@ module Spotlight::Resources
       
       end
       if (!values.empty?)
+        values = values.uniq
         values.join(delimiter) 
       end
     end
