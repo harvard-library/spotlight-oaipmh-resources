@@ -1,0 +1,134 @@
+# From Mongo Solr: tedming
+# To Spotlight Solr
+#
+# 2018-08-28: added tesim block to painting-date; changed spotlight field names to artist-place from place, 
+#    to artist-period from period, to painting-bibliography from bibliography, and to painting location from location. (RKW)
+# 2018-08-22: added unique-id_tesim entry and ssim entries for period, place, and format. (RKW)
+# 2018-08-21: added full_title_tesim (RKW)
+# 2018-08-20: rev. draft (RKW)
+# 2018-08-15: 1st draft (RKW) 
+#
+# - spotlight-field: xxx (field names should be separated with dashes except for the suffix: firstpart-secondpart_ssim or _tesim)
+#    multivalue-breaks: "yes" (optional) - use this for splitting out multiple values to be broken on (and faceted on) individually (ex - subjects)
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    solr-field:
+#        - field-name: xxx (repeatable - all fields will be concatenated with the delimiter above)
+#
+- spotlight-field: unique-id_tesim 
+  solr-field:
+      - field-name: hashKey
+#
+- spotlight-field: full_title_tesim
+  delimiter: ". "
+  solr-field:
+      - field-name: artist.romanizedName
+      - field-name: painting.romanizedTitle
+#
+- spotlight-field: record-id_tesim
+  solr-field:
+      - field-name: key
+#
+- spotlight-field: artist_ssim
+  solr-field:
+      - field-name: artist.romanizedName
+#
+- spotlight-field: artist_tesim
+  solr-field:
+      - field-name: artist.romanizedName
+#
+- spotlight-field: tzu-hao_ssim
+  solr-field:
+      - field-name: artist.tzuHao
+#
+- spotlight-field: tzu-hao_tesim
+  solr-field:
+      - field-name: artist.tzuHao
+#
+- spotlight-field: artist-period_ssim
+  solr-field:
+      - field-name: artist.period
+#
+- spotlight-field: artist-period_tesim
+  solr-field:
+      - field-name: artist.period
+#
+- spotlight-field: artist-place_ssim
+  solr-field:
+      - field-name: artist.place
+#
+- spotlight-field: artist-place_tesim
+  solr-field:
+      - field-name: artist.place
+#
+- spotlight-field: subjects_ssim
+  solr-field:
+      - field-name: artist.subjects
+#
+- spotlight-field: subjects_tesim
+  solr-field:
+      - field-name: artist.subjects
+#
+- spotlight-field: biography_tesim
+  solr-field:
+      - field-name: artist.biography
+#
+- spotlight-field: artist-bibliography_tesim
+  multivalue-breaks: "yes" 
+  solr-field:
+      - field-name: artist.artistBibliography
+#
+- spotlight-field: artist-references_tesim
+  solr-field:
+      - field-name: artist.artistReferences
+#
+- spotlight-field: painting-title_tesim
+  solr-field:
+      - field-name: painting.romanizedTitle
+#
+- spotlight-field: painting-date_ssim
+  solr-field:
+      - field-name: painting.freeDate
+#
+- spotlight-field: painting-date_tesim
+  solr-field:
+      - field-name: painting.freeDate
+#
+- spotlight-field: painting-start-date_ssim
+  solr-field:
+      - field-name: painting.structuredDate.beginDate
+#
+- spotlight-field: painting-end-date_ssim
+  solr-field:
+      - field-name: painting.structuredDate.endDate
+#
+- spotlight-field: format_ssim
+  solr-field:
+      - field-name: painting.format
+      #
+- spotlight-field: format_tesim
+  solr-field:
+      - field-name: painting.format
+#
+- spotlight-field: painting-location_ssim
+  solr-field:
+      - field-name: painting.location
+#
+- spotlight-field: painting-location_tesim
+  solr-field:
+      - field-name: painting.location
+#
+- spotlight-field: notes_tesim
+  solr-field:
+      - field-name: painting.notes
+#
+- spotlight-field: painting-bibliography_tesim
+  multivalue-breaks: "yes" 
+  solr-field:
+      - field-name: painting.bibliography
+#
+- spotlight-field: painting-references_tesim
+  solr-field:
+      - field-name: painting.references
+
+

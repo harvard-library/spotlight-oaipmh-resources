@@ -1,0 +1,471 @@
+#  2018-07-30: First VC production version (RKW)
+#  2018-07-31: Temporarily changed repository_ssim and repository_tesim to select [@type='repository'] rather than [@displayLabel='Harvard repository'].
+#                Change back after full reingest of all metadata sources. (RKW)
+#
+# Structure:
+#  - spotlight-field: xxx
+#    multivalue-breaks: "yes" (optional) - if you want repeatable values for a given field to be 
+#        handled separately in a facet or to be displayed on separate lines in a record display.
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    mods:
+#        - path: xxx (repeatable - all path fields will be concatenated)
+#          delimiter: " " (optional)
+#          attribute: xxx (optional) - attribute, attribute-value, and mods-path+mods-value supply 
+#             conditions which must be met for the spotlight-field to be created.
+#             E.g., only create field if MODS element has @displayLabel where value = "collection".)
+#          attribute-value: xxx (optional, but only used with attribute)
+#          mods-path: xxx (optional)
+#          mods-value: xxx (optional)
+#          subpaths: (optional)
+#            - subpath: xxx
+#            - subpath: xxx
+#    xpath: 
+#        - xpath-value: xxx (repeatable)
+#          xpath-namespace-prefix: xxx (optional)
+#          xpath-namespace-def: xxx (optional)
+#   
+#  Documentation at https://github.com/harvard-library/spotlight-oaipmh-resources/wiki
+#  
+#  Multiterm field names need terms separated with dash, not underscore. Underscore is used 
+#  1) by Stanford-defined baked-in fields and 2) for ssim, tesim, ssm suffixes, etc.   
+#
+#  Spotlight field names in YAML may not contain capital letters.
+#
+#  xPaths with multiple namespaces cannot be mapped. 
+#  xPaths that address the a namespace within a mods:extension without including MODS will work, e.g., 
+#  //cdwalite:cultureWrap/cdwalite:culture, //cdwalite:styleWrap/cdwalite:style, //cdwalite:indexingMaterialsTechSet/cdwalite:termMaterialsTech
+#  
+#  YML structure sensitive to the exact number of leading spaces.
+#  Tabs will cause the ingest to fail.
+#
+#  Things left to do:
+#
+#  -- add series title
+#  -- finding aid link is not readily identifiable in all MODS records
+#  -- add object-in-context link when present in production data
+#  -- subject/name currently includes only the 1st namePart, and subject/titleInfo only the title subelement. 
+#        Additional subelements can't be correctly formatted if included with current capabilities.
+#  -- separate alternate titles from main titles for tesim while still searching together if possible. This will make the list view more readable. 
+#        Distinguish using the titleInfo type attribute, where values can be abbreviated, translated, alternative, or uniform. The primary title would lack a type attribute. 
+#  -- vernacular script elements are messily duplicative when not all parts of script field are in the script 
+#       (See in particular publishers, creation dates, notes.) However, exact duplicates will be suppressed from display.
+
+- spotlight-field: unique-id_tesim
+  mods:
+      - path: recordInfo/recordIdentifier
+    
+- spotlight-field: full_title_tesim
+  delimiter: ": "
+  mods:
+      - path: titleInfo
+        attribute: type
+        attribute-value: '!uniform' 
+        delimiter: " "
+        subpaths:
+          - subpath: nonSort
+          - subpath: title
+          - subpath: partNumber
+          - subpath: partName 
+      - path: titleInfo/subTitle
+      - path: relatedItem
+        attribute: type
+        attribute-value: constituent
+        subpaths:
+          - subpath: titleInfo/title
+      - path: relatedItem
+        attribute: type
+        attribute-value: host
+        subpaths:
+          - subpath: titleInfo/title
+
+# Deliberately including role in display but not in facet, hence the slightly different field names.
+# Need to add "/" between Creator and Contributor for both field names in Spotlight exhibit after initial ingest. 
+
+- spotlight-field: creator-contributor_tesim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  mods:
+      - path: plain_name
+        delimiter: ", "
+        subpaths:
+          - subpath: namePart
+          - subpath: role/roleTerm
+        
+- spotlight-field: creators-contributors_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  mods:
+      - path: plain_name
+        delimiter: ", "
+        subpaths:
+          - subpath: namePart
+         
+- spotlight-field: publisher_tesim
+  delimiter: "|"  
+  mods:
+      - path: originInfo/publisher
+- spotlight-field: publisher_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"  
+  mods:
+      - path: originInfo/publisher
+#        
+- spotlight-field: place-of-origin_tesim
+  delimiter: "|"  
+  mods:
+      - path: originInfo/place/placeTerm
+        attribute: type
+        attribute-value: '!code'
+- spotlight-field: place-of-origin_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"  
+  mods:
+      - path: originInfo/place/placeTerm
+        attribute: type
+        attribute-value: '!code'
+
+- spotlight-field: date_tesim
+  delimiter: "|"  
+  mods:
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value:   
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:         
+      - path: originInfo/dateOther
+        attribute: '!point'
+        attribute-value: 
+
+- spotlight-field: date_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"  
+  mods:
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:         
+      - path: originInfo/dateOther
+        attribute: '!point'
+        attribute-value:
+
+- spotlight-field: edition_tesim
+  mods:
+      - path: originInfo/edition
+
+- spotlight-field: classification_tesim
+  mods:
+      - path: classification
+         
+- spotlight-field: spotlight_upload_description_tesim
+  delimiter: "|"
+  mods: 
+      - path: abstract
+
+- spotlight-field: contents_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: tableOfContents
+      
+- spotlight-field: extent_tesim
+  delimiter: "|"
+  mods:
+      - path: physicalDescription/extent
+
+# Waiting on fix to XML namespace problems in MODS records
+
+#- spotlight-field: digital-format_tesim
+#  multivalue-breaks: "yes"
+#  xpath: 
+#      - xpath-value: "//digitalFormats:digitalFormat"
+#        xpath-namespace-prefix: "digitalFormats"
+#        xpath-namespace-def: "http://lib.harvard.edu/TBD"
+
+# default can be dropped in language fields below when default is confirmed set in all LibraryCloud ingest streams.
+- spotlight-field: language_ssim
+  default-value: unspecified or not applicable
+  delimiter: "|"
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "/mods:mods/mods:language/mods:languageTerm[@type='text']"
+      
+- spotlight-field: language_tesim
+  default-value: unspecified or not applicable
+  delimiter: "|"
+  xpath:
+      - xpath-value: "/mods:mods/mods:language/mods:languageTerm[@type='text']"
+
+- spotlight-field: culture_tesim
+  delimiter: "|"
+  xpath: 
+      - xpath-value: "//cdwalite:cultureWrap/cdwalite:culture"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+  
+- spotlight-field: culture_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  xpath: 
+      - xpath-value: "//cdwalite:cultureWrap/cdwalite:culture"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+ 
+- spotlight-field: style-period_tesim
+  delimiter: "|"
+  xpath: 
+      - xpath-value: "//cdwalite:style/cdwalite:style"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+
+- spotlight-field: style-period_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  xpath: 
+      - xpath-value: "//cdwalite:styleWrap/cdwalite:style"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+ 
+- spotlight-field: materials-techniques_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  xpath: 
+      - xpath-value: "//cdwalite:indexingMaterialsTechSet/cdwalite:termMaterialsTech"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+ 
+- spotlight-field: materials-techniques_tesim
+  delimiter: "|"
+  xpath: 
+      - xpath-value: "//cdwalite:indexingMaterialsTechSet/cdwalite:termMaterialsTech"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+
+# Consider trying regex, either here or in LibraryCloud [source]@mods.xsl to identify additional Finding Aid links
+
+- spotlight-field: finding-aid_tesim
+  xpath:
+      - xpath-value: "//mods:relatedItem[@otherType='Finding Aid']/mods:location/mods:url"
+      
+- spotlight-field: repository_ssim
+  multivalue-breaks: "yes"
+  xpath:
+    - xpath-value: "/mods:mods/mods:location/mods:physicalLocation[@type='repository']"
+    - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+    - xpath-value: "//mods:relatedItem[@type='constituent']/mods:location/mods:physicalLocation[@type='repository']"
+
+#  Is there a way via xpath to associate shelfLocator with each of these in tesim only, 
+#   without having the shelfLocator treated as a separate repository? 
+
+- spotlight-field: repository_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "/mods:mods/mods:location/mods:physicalLocation[@type='repository']"  
+      - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+      - xpath-value: "//mods:relatedItem[@type='constituent']/mods:location/mods:physicalLocation[@type='repository']"
+        
+- spotlight-field: subjects_ssim
+  delimiter: "|"
+  multivalue-breaks: "yes"
+  mods:
+      - path: subject
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+- spotlight-field: subjects_tesim
+  delimiter: "|"
+  mods:
+      - path: subject
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+        
+- spotlight-field: genre_tesim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  xpath:
+      - xpath-value: "//mods:genre"
+
+- spotlight-field: genre_ssim
+  delimiter: "|"
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "//mods:genre"
+
+- spotlight-field: places_tesim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  mods:
+      - path: subject/hierarchicalGeographic
+        delimiter: "--"
+        subpaths:
+          - subpath: continent
+          - subpath: country
+          - subpath: region
+          - subpath: state
+          - subpath: territory
+          - subpath: county
+          - subpath: city
+          - subpath: island
+          - subpath: area
+          - subpath: extraterrestrialArea
+          - subpath: citySection
+      - path: location/physicalLocation
+        delimiter: "--"
+        attribute: type
+        attribute-value: '!repository'
+
+- spotlight-field: places_ssim
+  delimiter: "|"
+  multivalue-breaks: yes
+  mods:
+      - path: subject/hierarchicalGeographic
+        delimiter: "--"
+        subpaths:
+          - subpath: continent
+          - subpath: country
+          - subpath: region
+          - subpath: state
+          - subpath: territory
+          - subpath: county
+          - subpath: city
+          - subpath: island
+          - subpath: area
+          - subpath: extraterrestrialArea
+          - subpath: citySection
+      - path: location/physicalLocation
+        delimiter: "--"
+        attribute: type
+        attribute-value: '!repository'
+        
+- spotlight-field: attribution_tesim
+  delimiter: "|"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: statement of responsibility
+        
+- spotlight-field: in-collection_tesim
+  delimiter: ", "
+  xpath:
+      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:titleInfo/mods:title"
+      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:identifier"      
+          
+- spotlight-field: collection_ssim
+  xpath:
+      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:titleInfo/mods:title" 
+
+- spotlight-field: note_tesim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  xpath:
+      - xpath-value: "//mods:note[not(@type='statement of responsibility' or @type='organization')]"
+   
+
+- spotlight-field: thumbnail_url_ssm
+  xpath:
+      - xpath-value: "(//mods:location/mods:url[@access='preview'])[1]"
+
+# This helps, but it can result in thumbnail and full being for different resources
+
+- spotlight-field: full_image_url_ssm
+  delimiter: "|"
+  xpath:
+      - xpath-value: "(//mods:location/mods:url[@access='raw object'])[1]"
+        
+- spotlight-field: additional-digital-items_tesim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  xpath:
+      - xpath-value: "(//mods:location/mods:url[@access='raw object'])[2]"
+      - xpath-value: "(//mods:location/mods:url[@access='raw object'])[3]"
+
+- spotlight-field: rights_tesim
+  mods:
+      - path: accessCondition
+       
+- spotlight-field: record-id_tesim
+  mods:
+      - path: recordInfo/recordIdentifier
+
+#  This is here because the baked-in Spotlight Date element doesn't display.
+#  dateOther is not included because it tends to duplicate other date elements.
+
+- spotlight-field: creation-date_tesim
+  mods:
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value:       
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:         
+
+- spotlight-field: creation-date_ssim
+  multivalue-breaks: "yes"
+  mods:
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateCreated  
+        attribute: '!point'
+        attribute-value:       
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:          
+
+- spotlight-field: hollis-record_tesim
+  xpath:
+      - xpath-value: "//mods:relatedItem[@otherType='HOLLIS record' or @otherType='HOLLIS Images record']/mods:location/mods:url"  
+
+

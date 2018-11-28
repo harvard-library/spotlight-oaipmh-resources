@@ -1,0 +1,168 @@
+# From Mongo Solr: acatcourses
+# To Spotlight Solr
+#
+# 2018-08-22: changed field-name "_id" to "hashKey" in record-id_tesim (RKW)
+# 2018-08-21: added full_title_tesim, spotlight_upload_description_tesim, and semester_tesim (RKW)
+# 2018-08-20: rev. draft (RKW)
+# 2018-08-15: 1st draft (RKW) 
+#
+# - spotlight-field: xxx (field names should be separated with dashes except for the suffix: firstpart-secondpart_ssim or _tesim)
+#    multivalue-breaks: "yes" (optional) - use this for splitting out multiple values to be broken on (and faceted on) individually (ex - subjects)
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    solr-field:
+#        - field-name: xxx (repeatable - all fields will be concatenated with the delimiter above)
+#
+- spotlight-field: full_title_tesim
+  solr-field:
+      - field-name: COURSE_TITLE
+#
+- spotlight-field: spotlight_upload_description_tesim
+  solr-field:
+      - field-name: courseDescription
+#
+- spotlight-field: unique-id_tesim 
+  solr-field:
+      - field-name: hashKey
+#
+- spotlight-field: school-short-name_ssim
+  solr-field:
+      - field-name: SCHOOL_SHORT_NAME
+#
+- spotlight-field: school-short-name_tesim
+  solr-field:
+      - field-name: SCHOOL_SHORT_NAME
+#
+- spotlight-field: school-name_ssim
+  solr-field:
+      - field-name: SCHOOL_NM
+#
+- spotlight-field: school-name_tesim
+  solr-field:
+      - field-name: SCHOOL_NM
+#
+- spotlight-field: course-title_ssim
+  solr-field:
+      - field-name: COURSE_TITLE
+#
+- spotlight-field: course-title_tesim
+  solr-field:
+      - field-name: COURSE_TITLE
+#
+- spotlight-field: course-number_ssim
+  solr-field:
+      - field-name: COURSE_NO
+#
+- spotlight-field: course-number_tesim
+  solr-field:
+      - field-name: COURSE_NO
+#
+- spotlight-field: fas-catalog-number_ssim
+  solr-field:
+      - field-name: FAS_CAT_NO
+#
+- spotlight-field: fas-catalog-number_tesim
+  solr-field:
+      - field-name: FAS_CAT_NO
+#
+- spotlight-field: faculty_ssim
+  solr-field:
+      - field-name: INSTRUCTOR
+#
+- spotlight-field: faculty_tesim
+  solr-field:
+      - field-name: INSTRUCTOR
+#
+- spotlight-field: credits_tesim
+  solr-field:
+      - field-name: CREDITS 
+#
+- spotlight-field: term_ssim
+  solr-field:
+      - field-name: TERM_DESC
+#
+- spotlight-field: term_tesim
+  solr-field:
+      - field-name: TERM_DESC
+#
+- spotlight-field: limited-enrollment_tesim
+  solr-field:
+      - field-name: ENROLL_LIMIT_FL
+#
+- spotlight-field: student-level_ssim
+  solr-field:
+      - field-name: GRAD_UNDERGRAD_FL
+#
+- spotlight-field: student-level_tesim
+  solr-field:
+      - field-name: GRAD_UNDERGRAD_FL
+#
+- spotlight-field: day-time_tesim
+  solr-field:
+      - field-name: dayTime
+      - field-name: X_SCHED
+      - field-name: Y_SCHED
+#
+- spotlight-field: location_ssim
+  solr-field:
+      - field-name: LOCATION 
+#
+- spotlight-field: location_tesim
+  solr-field:
+      - field-name: LOCATION 
+#
+- spotlight-field: course-description_tesim
+  solr-field:
+      - field-name: courseDescription
+#
+- spotlight-field: prerequisites_tesim
+  solr-field:
+      - field-name: PREREQ
+#
+- spotlight-field: department_ssim
+  solr-field:
+      - field-name: DEPT_AREA_CATEGORY
+#
+- spotlight-field: department_tesim
+  solr-field:
+      - field-name: DEPT_AREA_CATEGORY
+#
+- spotlight-field: special-notes_tesim
+  solr-field:
+      - field-name: SPECIAL_NOTES
+#
+- spotlight-field: offer-year_ssim
+  solr-field:
+      - field-name: OFFER_YR
+#
+- spotlight-field: offer-year_tesim
+  solr-field:
+      - field-name: OFFER_YR
+#
+- spotlight-field: cross-registration_tesim
+  solr-field:
+      - field-name: XREG_FL
+#
+- spotlight-field: audit_tesim
+  solr-field:
+      - field-name: AUDIT_FL
+#
+- spotlight-field: section-number_tesim
+  solr-field:
+      - field-name: SECTION_NO
+#
+- spotlight-field: semester_ssim
+  solr-field:
+      - field-name: semester 
+#
+- spotlight-field: semester_tesim
+  solr-field:
+      - field-name: semester 
+#
+- spotlight-field: start-year_ssim
+  solr-field:
+      - field-name: startYear
+#
+- spotlight-field: end-year_ssim
+  solr-field:
+      - field-name: endYear

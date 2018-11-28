@@ -4,10 +4,12 @@ module Spotlight
     class OaipmhBuilder < Spotlight::SolrDocumentBuilder
       
       def to_solr
+        begin
         return to_enum(:to_solr) { 0 } unless block_given?
 
         base_doc = super
-                
+          
+           
         mapping_file = nil
         if (!resource.data[:mapping_file].eql?("Default Mapping File") && !resource.data[:mapping_file].eql?("New Mapping File"))
           mapping_file = resource.data[:mapping_file]
@@ -17,23 +19,39 @@ module Spotlight
         
         @oai_mods_converter = OaipmhModsConverter.new(resource.data[:set], resource.exhibit.slug, mapping_file)
         
-        harvests = resource.oaipmh_harvests
-        resumption_token = harvests.resumption_token
+        count = 0
+        totalrecords = 0
+        failed_items = nil
+
+    		#If the resumption token was stored, begin there.
+        if (resource.data.include?(:cursor) && !resource.data[:cursor].blank?)
+          cursor = resource.data[:cursor]
+          harvests = resource.paginate(cursor)
+          
+   			else
+          harvests = resource.harvests
+        end
+     		
+     		resumption_token = harvests.resumption_token
+     		
+     		if (resource.data.include?(:count) && !resource.data[:count].blank?)
+          totalrecords = resource.data[:count]
+        end
+        
         last_page_evaluated = false
-        until (resumption_token.nil? && last_page_evaluated)
-          #once we reach the last page
+        while (!last_page_evaluated)
           if (resumption_token.nil?)
             last_page_evaluated = true
           end
           harvests.each do |record|
-            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter, @cna_config)
-            
+            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter)
             @item.metadata = record.metadata
             @item.parse_mods_record()
             begin
               @item_solr = @item.to_solr
               @item_sidecar = @item.sidecar_data
-                
+              
+                      
               #CNA Specific
               lookup_languages_and_origins()     
               parse_subjects()
@@ -42,35 +60,38 @@ module Spotlight
               create_year_ranges()
               
               record_type_field_name = @oai_mods_converter.get_spotlight_field_name("record-type_ssim")
-                 
-              ##CNA Specific - catalog
-              catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
-              catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
-         
-              #THIS IS SPECIFIC TO CNA   
-              repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
+                               
+            	         
+        			#THIS IS SPECIFIC TO CNA 
+          		repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
               
-              #THIS IS SPECIFIC TO CNA   
-              funding_field_name = @oai_mods_converter.get_spotlight_field_name("funding_ssim")
-              if (!@item_solr[funding_field_name].nil? && @item_solr[funding_field_name].include?("Polonsky"))
-                  @item_solr[funding_field_name] = "The Polonsky Foundation"
-                  @item_sidecar["funding_ssim"] = "The Polonsky Foundation"
-              end
-                                                
-              #If the collection field is populated then it is a collection, otherwise it is an item.
-              if (!@item_solr[record_type_field_name].nil? && !@item_solr[record_type_field_name].eql?("item"))
-                set_collection_specific_data(record_type_field_name)
-              else
-                set_item_specific_data(record_type_field_name)
-                process_images()
-              end
+         			#THIS IS SPECIFIC TO CNA   
+            	funding_field_name = @oai_mods_converter.get_spotlight_field_name("funding_ssim")
+           		if (!@item_solr[funding_field_name].nil? && @item_solr[funding_field_name].include?("Polonsky"))
+              	@item_solr[funding_field_name] = "The Polonsky Foundation"
+              	@item_sidecar["funding_ssim"] = "The Polonsky Foundation"
+        			end
+                                                              
+           		#If the collection field is populated then it is a collection, otherwise it is an item.
+          		if (!@item_solr[record_type_field_name].nil? && !@item_solr[record_type_field_name].eql?("item"))
+              	set_collection_specific_data(record_type_field_name)
+           		else
+              	set_item_specific_data(record_type_field_name)
+              	process_images()
+             	end
   
-              uniquify_repos(repository_field_name)
+        			uniquify_repos(repository_field_name)
+  
+         			#Add the sidecar info for editing
+        			sidecar ||= resource.document_model.new(id: @item.id).sidecar(resource.exhibit) 
+             	sidecar.update(data: @item_sidecar)
+          		yield base_doc.merge(@item_solr) if @item_solr.present?
               
-              #Add the sidecar info for editing
-              sidecar ||= resource.document_model.new(id: @item.id).sidecar(resource.exhibit)   
-              sidecar.update(data: @item_sidecar)
-              yield base_doc.merge(@item_solr) if @item_solr.present?
+              count = count + 1
+              totalrecords = totalrecords + 1
+              curtime = Time.zone.now
+              resource.get_job_entry.update(job_item_count: totalrecords, end_time: curtime)
+
             rescue Exception => e
               Delayed::Worker.logger.add(Logger::ERROR, @item.id + ' did not index successfully')
               Delayed::Worker.logger.add(Logger::ERROR, e.message)
@@ -110,7 +131,7 @@ module Spotlight
       end
       
       def perform_lookups(input, data_type)
-        
+        begin
         import_arr = []
         if (!input.to_s.blank?)
           input_codes = input.split('|')
@@ -123,32 +144,43 @@ module Spotlight
                 item = Cnalanguage.find_by(code: code)
               else
                 item = Origin.find_by(code: code)
+              if (failed_items.nil?)
+                failed_items = Array.new
               end
-
-              if item.nil?
-                import_arr.push(code)
-              else
-                import_arr.push(item.name)
-              end
+              failed_items << @item.id
             end
           end
+
+          #Stop harvesting if the batch has reached the maximum allowed value
+          if (!resumption_token.nil?) 
+        		if (max_batch_count != -1 && count >= max_batch_count)
+              schedule_next_batch(resumption_token, totalrecords, failed_items)
+        		  break
+        		else
+             harvests = resource.paginate(resumption_token)
+             resumption_token = harvests.resumption_token
+            end
+          end
+        
         end
-                
-        import_arr
+        rescue Exception => e
+          resource.get_job_entry.failed!
+          Delayed::Worker.logger.add(Logger::ERROR, resource.data[:set] + ' harvest failed')
+          Delayed::Worker.logger.add(Logger::ERROR, e.message)
+          Delayed::Worker.logger.add(Logger::ERROR, e.backtrace)
+          Spotlight::HarvestingCompleteMailer.harvest_failed(resource.data[:set], resource.exhibit, resource.data[:user], e.message).deliver_now
+          raise
+        end
+        if (last_page_evaluated)
+        	resource.get_job_entry.succeeded!
+        	#Send job message
+          Spotlight::HarvestingCompleteMailer.harvest_indexed(resource.data[:set], resource.exhibit, resource.data[:user], failed_items).deliver_now
+       	end
       end
- 
+
 private   
- 
-      def lookup_languages_and_origins()
-        ###CNA Specific - Language and origin
-        lang_field_name = @oai_mods_converter.get_spotlight_field_name("language_ssim")
-        origin_field_name = @oai_mods_converter.get_spotlight_field_name("origin_ssim")
-        language = perform_lookups(@item_solr[lang_field_name], "lang")
-        origin = perform_lookups(@item_solr[origin_field_name], "orig")
-        @item_solr[lang_field_name] = language
-        @item_solr[origin_field_name] = origin
-        @item_sidecar["language_ssim"] = language
-        @item_sidecar["origin_ssim"] = origin
+      def schedule_next_batch(cursor, count, failed_items)
+        Spotlight::Resources::PerformHarvestsJob.perform_later(resource.data[:type], resource.data[:base_url], resource.data[:set], resource.data[:mapping_file], resource.exhibit, resource.data[:user], resource.data[:job_entry], cursor, count, failed_items)
       end
       
       def parse_subjects()
@@ -250,8 +282,6 @@ private
       
       
       def set_item_specific_data(record_type_field_name)
-        catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
-        catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
         repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
                          
         @item_solr[record_type_field_name] = "item"
@@ -339,10 +369,10 @@ private
           repo = repoarray.join("|")
           @item_solr[repository_field_name] = repo
           @item_sidecar["repository_ssim"] = repo
-        end
-      end
-      
-      def uniquify_dates()
+				end	
+			end
+			
+			def uniquify_dates()
         start_date_name = @oai_mods_converter.get_spotlight_field_name("start-date_tesim")
         end_date_name = @oai_mods_converter.get_spotlight_field_name("end-date_tesim")
         start_date = @item_solr[start_date_name]
@@ -359,6 +389,32 @@ private
           @item_solr[end_date_name] = dates
           @item_sidecar["end-date_tesim"] = dates
         end
+      end
+      
+      #Resolves urn-3 uris
+      def fetch_ids_uri(uri_str)
+        if (uri_str =~ /urn-3/)
+          response = Net::HTTP.get_response(URI.parse(uri_str))['location']
+        elsif (uri_str.include?('?'))
+          uri_str = uri_str.slice(0..(uri_str.index('?')-1))
+        else
+          uri_str
+        end
+      end
+    
+      #Returns the uri for the iiif
+      def transform_ids_uri_to_iiif(ids_uri)
+        #Strip of parameters
+        uri = ids_uri.sub(/\?.+/, "")
+        #Change /view/ to /iiif/
+        uri = uri.sub(%r|/view/|, "/iiif/")
+        #Append /native.jpg to end if it doesn't exist
+        if (!uri.include?('native.jpg'))
+          uri = uri + "/full/180,/0/native.jpg"
+        elsif (uri.include?("full/,150/"))
+          uri = uri.sub(/full\/,150\//,"full/180,/")
+        end    
+        uri
       end
       
       #Resolves urn-3 uris

@@ -1,0 +1,20 @@
+#Structure:
+#
+#  - spotlight-field: xxx (field names should be separated with dashes except for the suffix: firstpart-secondpart_ssim or _tesim)
+#    multivalue-breaks: "yes" (optional) - use this for splitting out multiple values to be broken on (and faceted on) individually (ex - subjects)
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    solr-field:
+#        - field-name: xxx (repeatable - all path fields will be concatenated)
+#
+# Make sure to set unique-id_tesim if you want to choose an identifier for your record.
+# Otherwise, reharvesting will result in the addition of more records rather than overwriting
+# existing records.
+
+- spotlight-field: unique-id_tesim
+  solr-field:
+     - field-name: "hashKey"
+     
+- spotlight-field: full_title_tesim
+  solr-field:
+     - field-name: "artist.romanizedName"

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 
   RSpec.describe Spotlight::Resources::OaipmhModsItem, type: :model do
-    let(:exhibit) { FactoryGirl.create(:exhibit) }
+    let(:exhibit) { FactoryBot.create(:exhibit) }
     let(:converter) { Spotlight::Resources::OaipmhModsConverter.new('CNA', 'test-exhibit-name')}
     subject { described_class.new(exhibit, converter) }
       

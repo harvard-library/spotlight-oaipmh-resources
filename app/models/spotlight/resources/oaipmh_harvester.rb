@@ -3,17 +3,23 @@ require 'net/http'
 require 'uri'
   
 module Spotlight::Resources
-  class OaipmhHarvester < Spotlight::Resource
-    attr_accessor :set, :base_url, :mapping_file
-    self.document_builder_class = Spotlight::Resources::OaipmhBuilder
+  class OaipmhHarvester
+    
+    def initialize(base_url, set)
+     @url = base_url + '?verb=ListRecords&metadataPrefix=mods&set=' + set
+      @base_url = base_url
+      @set = set
+    end
             
-    def oaipmh_harvests
-      self.url = self.data[:base_url] + '?verb=ListRecords&metadataPrefix=mods&set=' + self.data[:set]
-      @client = OAI::Client.new self.data[:base_url]
-      @oaipmh_harvests = @client.list_records :set => self.data[:set], :metadata_prefix => 'mods'
+    def get_harvests
+      @client = OAI::Client.new @base_url
+      @oaipmh_harvests = @client.list_records :set => @set, :metadata_prefix => 'mods'
     end
     
-    def resumption_oaipmh_harvests (token)
+    def paginate (token)
+      if @client.nil?
+        @client = OAI::Client.new @base_url
+      end
       @oaipmh_harvests = @client.list_records :resumption_token => token
     end
     
@@ -30,5 +36,6 @@ module Spotlight::Resources
       files.insert(0, "Default Mapping File")
       files
     end
+
   end
 end

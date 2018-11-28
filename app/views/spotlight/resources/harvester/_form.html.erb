@@ -1,0 +1,36 @@
+<%= bootstrap_form_for([current_exhibit, @resource.becomes(Spotlight::Resources::Harvester)], url: spotlight_oaipmh_resources_engine.exhibit_harvester_path(exhibit_id: current_exhibit), layout: :horizontal, label_col: 'col-md-2', control_col: 'col-sm-6 col-md-6' ) do |f| %>
+  <%= f.select :type, Spotlight::Resources::HarvestType::HARVEST_TYPES, {}, :onChange=>"toggleHarvesters(this.value);" %>
+  <%= f.text_field :url, help: t('.url-field.help'), label: t('.url') %>
+  <%= f.text_field :set, help: t('.set-field.help'), label: t('.set') %>
+  <span id="oaiharvester"><%= f.select :mapping_file, Spotlight::Resources::OaipmhHarvester.mapping_files, {}, :onChange=>"toggleUploadArea(this.value);" %></span>
+  <span id="solrharvester" style="display:none"><%= f.select :solr_mapping_file, Spotlight::Resources::SolrHarvester.mapping_files, {}, :onChange=>"toggleUploadArea(this.value);" %></span>
+  <div id="custom_mapping_file_div" style="display:none"><%= f.file_field :custom_mapping, help: t('.custom-mapping-field.help'), label: t('.custom-mapping') %></div>
+  <div class="form-actions">
+    <div class="primary-actions">
+      <%= cancel_link @resource, :back, class: 'btn btn-default' %>
+      <%= f.submit t('.add_item'), class: 'btn btn-primary' %>
+    </div>
+  </div>
+<% end %>
+
+<%= javascript_tag do %>
+  function toggleUploadArea(value) {
+	  if(value=='New Mapping File') {
+	  	document.getElementById("custom_mapping_file_div").style.display = "block";
+	  }
+	  else {
+	  	document.getElementById("custom_mapping_file_div").style.display = "none";
+	  }
+  }
+  
+  function toggleHarvesters(value) {
+  	if(value=='MODS') {
+	  	document.getElementById("oaiharvester").style.display = "block";
+	  	document.getElementById("solrharvester").style.display = "none";
+	  }
+	  else {
+	  	document.getElementById("oaiharvester").style.display = "none";
+	  	document.getElementById("solrharvester").style.display = "block";
+	  }
+  }
+<% end %>

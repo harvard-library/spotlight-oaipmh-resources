@@ -1,3 +1,13 @@
 <p><%= t :".title" %></p>
 
 <p><%= t :".body", set: @set, title: @exhibit.title %></p>
+<% if (!@failed_items.blank?) %>
+<p>The following items did not index properly and were not added:</p>
+<p>
+<% 
+     @failed_items.each do |item| %>
+     	<%=item %></br>
+<%  end %>
+</p>
+<%  end  %>
+

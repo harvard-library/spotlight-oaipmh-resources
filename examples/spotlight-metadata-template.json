@@ -1,0 +1,844 @@
+{
+  "title": "Spotlight Metadata Template",
+  "subtitle": "",
+  "description": "",
+  "created_at": "2018-05-23T18:29:05.000Z",
+  "updated_at": "2018-08-01T14:17:46.000Z",
+  "published": false,
+  "weight": 16,
+  "site_id": 1,
+  "theme": "default",
+  "tag_list": [
+
+  ],
+  "searches": [
+    {
+      "title": "All Exhibit Items",
+      "slug": "all-exhibit-items",
+      "long_description": "All items in this exhibit.",
+      "query_params": {
+      },
+      "created_at": "2018-07-31T00:26:34.000Z",
+      "updated_at": "2018-07-31T00:26:34.000Z",
+      "search_box": false
+    }
+  ],
+  "about_pages": [
+    {
+      "title": "Terms of Use",
+      "type": "Spotlight::AboutPage",
+      "slug": "terms-of-use",
+      "weight": 0,
+      "published": true,
+      "created_by_id": 7,
+      "last_edited_by_id": 7,
+      "created_at": "2018-08-01T14:16:27.000Z",
+      "updated_at": "2018-08-01T14:16:52.000Z",
+      "display_sidebar": true,
+      "locale": "en",
+      "content": "{\"data\":[{\"type\":\"text\",\"data\":{\"text\":\"<p>By using the web site <a href=\\\"http://digitalcollections.lib.harvard.edu/\\\">http://digitalcollections.lib.harvard.edu</a>, you agree to be bound by these Terms of Use:</p>\",\"format\":\"html\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>The Site is maintained by the Harvard Library, a part of the President and Fellows of Harvard College (“Harvard University”), in support of its mission to advance scholarship and teaching by creating, preserving and disseminating knowledge. As used in these Terms of Use, the terms “we,” “us” and “our” refer collectively to the Harvard Library and Harvard University.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>1) Compliance with Copyright and Other Laws and Rights. The Site and some of the text, images, recordings and other content on the Site (collectively, the “Content”) are protected by copyright, trademark and other laws. The Content also may be subject to other legal interests, such as rights of publicity. You agree to use the Content only in ways that comply with copyright and all other applicable laws, as well as with these Terms of Use, and that do not infringe or violate anyone’s rights. You are responsible for determining whether permission is needed to make any use of the Content that you wish to make, and for obtaining all necessary permissions.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>2) Public Domain Content. Some of the Content consists of digital reproductions of works that are not protected by copyright in the United States (“Public Domain Content”). The Harvard Library does not assert copyright over those digital reproductions. Subject to Section 4 below, you are free to use Public Domain Content in accordance with the <a href=\\\"https://osc.hul.harvard.edu/pdpolicy\\\">Harvard Library Policy on Access to Digital Reproductions of Works in the Public Domain</a>. Though we may provide information on the copyright status of digitized works on the Site, we cannot guarantee the accuracy of the information. You must determine whether Content you wish to use is in the public domain in the place where it will be used.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>3) Other Content. We make Content other than Public Domain Content (“Other Content”) available for your educational and scholarly use in a manner permitted under fair use or other copyright exemptions, as applicable. Other Content includes any collection material that is not in the public domain and any descriptions, annotations, scholarly commentary and the like that we provide on the Site. If you wish to copy, distribute, display or make other uses of Other Content, beyond any use allowed under an applicable copyright exemption, you are responsible for obtaining permission from the copyright holder. Where we hold the copyright or have obtained permission from a third party to do so, we may allow broader use of Other Content by so indicating in connection with that Other Content on the Site. To request permission under rights held by a third party, please contact the third party.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>4) Other Restrictions. In some cases, Content may be subject to non-copyright restrictions of which we are aware, such as restrictions imposed under a donor agreement. In that event, we will note the restrictions in connection with the relevant Content on the Site, and you may use that Content only in a manner consistent with those restrictions.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>5) Copyright Complaints. We respect the intellectual property rights of others. Though we have endeavored to include on the Site only Content that we may lawfully include, copyright determinations are often hard to make. If we have made an error, we would like to fix it. If you believe your copyright has been violated on the Site, please notify us as provided at <a href=\\\"http://www.harvard.edu/copyright-issue\\\">Report Copyright Infringements</a>. That contact information pertains only to notifications of claimed infringement. Please direct all other communications concerning the Site to <a href=\\\"http://nrs.harvard.edu/urn-3:hul.ois:digitalcollections\\\">Digital Collections Support</a>.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>6) Trademarks. Nothing in these Terms of Use or on the Site shall be construed as granting you any right or license to use any trademark, service mark or logo displayed on the Site. You agree not to use any name, logo or insignia of Harvard University or any of its subdivisions (including the Harvard Library) in any advertising or promotional materials, or to falsely suggest any relationship between you and us, or in any manner that would infringe or violate any of our rights.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>7) Disclaimers; Limitation of Liability and Remedies; Indemnity. We make the Site and the Content available free of charge as a public service. Your use of the Site and the Content is at your own sole risk. We disclaim all warranties of any kind (express, implied or otherwise) regarding the Site or the Content. In no event shall we (or any of our governing board members, officers, employees, agents or affiliates) be liable to you, in contract, tort or otherwise, for any direct, indirect, special, incidental, consequential, punitive, exemplary or other damages of any kind relating to the Site or the Content or your use thereof, even if the Site or Content is defective or we are negligent or otherwise at fault, and regardless whether we are advised of the possibility of such damages. You agree to indemnify and hold harmless us (and our governing board members, officers, employees, agents and affiliates) from and against all claims, actions, suits, damages, liabilities and costs (including, without limitation, reasonable legal fees) relating to your use of the Site or the Content or your failure to comply with any provision of these Terms of Use. The disclaimers, limitations and other provisions of this paragraph shall apply to the fullest extent permitted by applicable law.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>8) Applicable Law and Jurisdiction; Access from Outside Massachusetts. These Terms of Use, and any claim or dispute that arises from or relates to your use of the Site or the Content, will be governed by the laws of Massachusetts, without regard to its conflicts of laws principles. You agree that all such claims and disputes that you may have, now or in the future, will be heard and resolved exclusively in courts sitting in Middlesex or Suffolk County, Massachusetts. You consent to the personal jurisdiction of such courts over you for this purpose, and waive and agree not to assert any objection to such proceedings in such courts (including any defense or objection of lack of proper jurisdiction or venue or inconvenience of forum). If you choose to access the Site from a location other than Massachusetts, you will be responsible for compliance with all local laws of that location.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>9) Changes to Terms of Use Are Binding. We may change these Terms of Use from time to time without advance notice. Your use of the Site after any changes have been made will constitute your agreement to the modified Terms of Use and all of the changes.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>10) General. If any provision of these Terms of Use is held to be invalid or unenforceable, that provision, to the extent unenforceable, shall be struck, and shall not affect the validity or enforceability of the remaining provisions. These Terms of Use set forth the entire understanding and agreement between you and us with respect to the subject matter hereof.</p>\"}},{\"type\":\"text\",\"data\":{\"format\":\"html\",\"text\":\"<p>Last Updated August 1, 2018</p>\"}}]}"
+    }
+  ],
+  "feature_pages": [
+
+  ],
+  "home_page": {
+    "title": "Exhibit Home",
+    "type": "Spotlight::HomePage",
+    "slug": "exhibit-home",
+    "weight": 50,
+    "published": true,
+    "created_at": "2018-05-23T18:29:05.000Z",
+    "updated_at": "2018-05-23T18:29:05.000Z",
+    "display_sidebar": true,
+    "locale": "en"
+  },
+  "main_navigations": [
+    {
+      "label": "",
+      "weight": 0,
+      "nav_type": "curated_features",
+      "created_at": "2018-05-23T18:29:05.000Z",
+      "updated_at": "2018-07-23T19:52:02.000Z",
+      "display": true
+    },
+    {
+      "label": "",
+      "weight": 1,
+      "nav_type": "browse",
+      "created_at": "2018-05-23T18:29:05.000Z",
+      "updated_at": "2018-07-23T19:52:02.000Z",
+      "display": true
+    },
+    {
+      "label": "Terms of Use",
+      "weight": 2,
+      "nav_type": "about",
+      "created_at": "2018-05-23T18:29:05.000Z",
+      "updated_at": "2018-08-01T14:17:46.000Z",
+      "display": true
+    }
+  ],
+  "blacklight_configuration": {
+    "facet_fields": {
+      "creators-contributors_ssim": {
+        "show": true,
+        "label": "Creators Contributors",
+        "sort": "count"
+      },
+      "place-of-origin_ssim": {
+        "show": true,
+        "label": "Place Of Origin",
+        "sort": "count"
+      },
+      "publisher_ssim": {
+        "show": true,
+        "label": "Publisher",
+        "sort": "count"
+      },
+      "creation-date_ssim": {
+        "show": true,
+        "label": "Creation Date",
+        "sort": "count"
+      },
+      "language_ssim": {
+        "show": true,
+        "label": "Language",
+        "sort": "count"
+      },
+      "genre_ssim": {
+        "show": true,
+        "label": "Genre",
+        "sort": "count"
+      },
+      "culture_ssim": {
+        "show": true,
+        "label": "Culture",
+        "sort": "count"
+      },
+      "style-period_ssim": {
+        "show": true,
+        "label": "Style Period",
+        "sort": "count"
+      },
+      "materials-techniques_ssim": {
+        "show": true,
+        "label": "Materials Techniques",
+        "sort": "count"
+      },
+      "subjects_ssim": {
+        "show": true,
+        "label": "Subjects",
+        "sort": "count"
+      },
+      "places_ssim": {
+        "show": true,
+        "label": "Places",
+        "sort": "count"
+      },
+      "digital-format_ssim": {
+        "show": true,
+        "label": "Digital Format",
+        "sort": "count"
+      },
+      "collection_ssim": {
+        "show": true,
+        "label": "Collection",
+        "sort": "count"
+      },
+      "repository_ssim": {
+        "show": true,
+        "label": "Repository",
+        "sort": "count"
+      }
+    },
+    "index_fields": {
+      "creator-contributor_tesim": {
+        "label": "Creator Contributor",
+        "weight": "0",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "spotlight_upload_description_tesim": {
+        "label": "Description",
+        "weight": "1",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "spotlight_upload_attribution_tesim": {
+        "label": "Attribution",
+        "weight": "2",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "spotlight_upload_date_tesim": {
+        "label": "Date",
+        "weight": "3",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "place-of-origin_ssim": {
+        "label": "Place Of Origin",
+        "weight": "4",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "publisher_ssim": {
+        "label": "Publisher",
+        "weight": "5",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "creation-date_ssim": {
+        "label": "Creation Date",
+        "weight": "6",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "edition_tesim": {
+        "label": "Edition",
+        "weight": "7",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "extent_tesim": {
+        "label": "Extent",
+        "weight": "8",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "language_ssim": {
+        "label": "Language",
+        "weight": "9",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "genre_ssim": {
+        "label": "Genre",
+        "weight": "10",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "additional-digital-items_tesim": {
+        "label": "Additional Digital Items",
+        "weight": "11",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "digital-format_ssim": {
+        "label": "Digital Format",
+        "weight": "12",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "contents_tesim": {
+        "label": "Contents",
+        "weight": "13",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "subjects_ssim": {
+        "label": "Subjects",
+        "weight": "14",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "culture_ssim": {
+        "label": "Culture",
+        "weight": "15",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "style-period_ssim": {
+        "label": "Style Period",
+        "weight": "16",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "materials-techniques_ssim": {
+        "label": "Materials Techniques",
+        "weight": "17",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "places_ssim": {
+        "label": "Places",
+        "weight": "18",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "note_tesim": {
+        "label": "Notes",
+        "weight": "19",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "attribution_tesim": {
+        "label": "Attribution",
+        "weight": "20",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "in-collection_tesim": {
+        "label": "In Collection",
+        "weight": "21",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "classification_tesim": {
+        "label": "Classification",
+        "weight": "22",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "repository_ssim": {
+        "label": "Repository",
+        "weight": "23",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "rights_tesim": {
+        "label": "Rights",
+        "weight": "24",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "finding-aid_tesim": {
+        "label": "Finding Aid",
+        "weight": "25",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "hollis-record_tesim": {
+        "label": "HOLLIS Record",
+        "weight": "26",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "record-id_tesim": {
+        "label": "Record ID",
+        "weight": "27",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      },
+      "collection_ssim": {
+        "label": "Collection",
+        "weight": "29",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": false,
+        "enabled": true
+      },
+      "creators-contributors_ssim": {
+        "label": "Creators Contributors",
+        "weight": "30",
+        "list": false,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": false,
+        "enabled": true
+      },
+      "exhibit_tags": {
+        "label": "Exhibit Tags",
+        "weight": "28",
+        "list": true,
+        "gallery": false,
+        "masonry": false,
+        "slideshow": false,
+        "show": true,
+        "enabled": true
+      }
+    },
+    "search_fields": {
+      "all_fields": {
+        "enabled": true,
+        "label": "Everything",
+        "weight": "-1"
+      }
+    },
+    "sort_fields": {
+      "relevance": {
+        "enabled": true,
+        "label": "Relevance",
+        "weight": "-1"
+      }
+    },
+    "default_solr_params": {
+    },
+    "show": {
+    },
+    "index": {
+    },
+    "default_per_page": 100,
+    "per_page": [
+
+    ],
+    "document_index_view_types": [
+      "list",
+      "gallery",
+      "masonry"
+    ],
+    "created_at": "2018-05-23T18:29:05.000Z",
+    "updated_at": "2018-07-31T00:03:08.000Z",
+    "skip_default_configuration": true
+  },
+  "custom_fields": [
+    {
+      "slug": "place-of-origin",
+      "field": "place-of-origin_ssim",
+      "configuration": {
+        "label": "Place Of Origin",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T19:59:28.000Z",
+      "updated_at": "2018-05-23T19:59:28.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "publisher",
+      "field": "publisher_ssim",
+      "configuration": {
+        "label": "Publisher",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T19:59:39.000Z",
+      "updated_at": "2018-05-23T19:59:39.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "creation-date",
+      "field": "creation-date_ssim",
+      "configuration": {
+        "label": "Creation Date",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:00:11.000Z",
+      "updated_at": "2018-05-23T20:00:11.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "edition",
+      "field": "edition_tesim",
+      "configuration": {
+        "label": "Edition",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:00:26.000Z",
+      "updated_at": "2018-05-23T20:00:26.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "classification",
+      "field": "classification_tesim",
+      "configuration": {
+        "label": "Classification",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:00:39.000Z",
+      "updated_at": "2018-05-23T20:00:39.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "language",
+      "field": "language_ssim",
+      "configuration": {
+        "label": "Language",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:01:05.000Z",
+      "updated_at": "2018-05-23T20:01:05.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "genre",
+      "field": "genre_ssim",
+      "configuration": {
+        "label": "Genre",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:02:46.000Z",
+      "updated_at": "2018-05-23T20:02:46.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "subjects",
+      "field": "subjects_ssim",
+      "configuration": {
+        "label": "Subjects",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:02:58.000Z",
+      "updated_at": "2018-05-23T20:02:58.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "repository",
+      "field": "repository_ssim",
+      "configuration": {
+        "label": "Repository",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:03:34.000Z",
+      "updated_at": "2018-06-19T19:50:36.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "note",
+      "field": "note_tesim",
+      "configuration": {
+        "label": "Note",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:03:46.000Z",
+      "updated_at": "2018-05-23T20:03:46.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "rights",
+      "field": "rights_tesim",
+      "configuration": {
+        "label": "Rights",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T20:04:38.000Z",
+      "updated_at": "2018-05-23T20:04:38.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "extent",
+      "field": "extent_tesim",
+      "configuration": {
+        "label": "Extent",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T22:55:11.000Z",
+      "updated_at": "2018-05-23T22:55:11.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "record-id",
+      "field": "record-id_tesim",
+      "configuration": {
+        "label": "Record ID",
+        "short_description": ""
+      },
+      "created_at": "2018-05-23T23:35:36.000Z",
+      "updated_at": "2018-05-23T23:35:36.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "style-period",
+      "field": "style-period_ssim",
+      "configuration": {
+        "label": "Style Period",
+        "short_description": ""
+      },
+      "created_at": "2018-06-19T19:09:09.000Z",
+      "updated_at": "2018-06-19T19:09:09.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "culture",
+      "field": "culture_ssim",
+      "configuration": {
+        "label": "Culture",
+        "short_description": ""
+      },
+      "created_at": "2018-06-19T19:09:50.000Z",
+      "updated_at": "2018-06-19T19:09:50.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "materials-techniques",
+      "field": "materials-techniques_ssim",
+      "configuration": {
+        "label": "Materials Techniques",
+        "short_description": ""
+      },
+      "created_at": "2018-06-19T19:10:04.000Z",
+      "updated_at": "2018-06-19T19:10:04.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "contents",
+      "field": "contents_tesim",
+      "configuration": {
+        "label": "Contents",
+        "short_description": ""
+      },
+      "created_at": "2018-06-19T20:03:48.000Z",
+      "updated_at": "2018-06-19T20:03:48.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "in-collection",
+      "field": "in-collection_tesim",
+      "configuration": {
+        "label": "In Collection",
+        "short_description": ""
+      },
+      "created_at": "2018-06-25T20:34:24.000Z",
+      "updated_at": "2018-06-25T20:34:24.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "attribution",
+      "field": "attribution_tesim",
+      "configuration": {
+        "label": "Attribution",
+        "short_description": ""
+      },
+      "created_at": "2018-06-25T23:05:21.000Z",
+      "updated_at": "2018-06-25T23:05:21.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "hollis-record",
+      "field": "hollis-record_tesim",
+      "configuration": {
+        "label": "HOLLIS record",
+        "short_description": ""
+      },
+      "created_at": "2018-06-27T13:24:14.000Z",
+      "updated_at": "2018-06-27T13:24:14.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "finding-aid",
+      "field": "finding-aid_tesim",
+      "configuration": {
+        "label": "Finding Aid",
+        "short_description": ""
+      },
+      "created_at": "2018-06-28T14:31:25.000Z",
+      "updated_at": "2018-06-28T14:31:25.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "digital-format",
+      "field": "digital-format_ssim",
+      "configuration": {
+        "label": "Digital Format",
+        "short_description": ""
+      },
+      "created_at": "2018-07-23T16:01:35.000Z",
+      "updated_at": "2018-07-23T16:01:35.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "additional-digital-items",
+      "field": "additional-digital-items_tesim",
+      "configuration": {
+        "label": "Additional Digital Items",
+        "short_description": ""
+      },
+      "created_at": "2018-07-25T02:23:27.000Z",
+      "updated_at": "2018-07-25T02:23:27.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "places",
+      "field": "places_ssim",
+      "configuration": {
+        "label": "Places",
+        "short_description": ""
+      },
+      "created_at": "2018-07-27T16:12:33.000Z",
+      "updated_at": "2018-07-27T16:12:41.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "collection",
+      "field": "collection_ssim",
+      "configuration": {
+        "label": "Collection",
+        "short_description": ""
+      },
+      "created_at": "2018-07-29T17:34:14.000Z",
+      "updated_at": "2018-07-29T17:34:14.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    },
+    {
+      "slug": "creator-contributor",
+      "field": "creator-contributor_tesim",
+      "configuration": {
+        "label": "Creator Contributor",
+        "short_description": ""
+      },
+      "created_at": "2018-07-30T15:02:09.000Z",
+      "updated_at": "2018-07-30T15:02:09.000Z",
+      "field_type": "text",
+      "readonly_field": false
+    },
+    {
+      "slug": "creators-contributors",
+      "field": "creators-contributors_ssim",
+      "configuration": {
+        "label": "Creators Contributors",
+        "short_description": ""
+      },
+      "created_at": "2018-07-30T15:02:31.000Z",
+      "updated_at": "2018-07-30T15:02:31.000Z",
+      "field_type": "vocab",
+      "readonly_field": false
+    }
+  ],
+  "contacts": [
+
+  ],
+  "contact_emails": [
+
+  ],
+  "solr_document_sidecars": [
+
+  ],
+  "owned_taggings": [
+
+  ],
+  "attachments": [
+
+  ],
+  "resources": [
+
+  ]
+}

@@ -1,5 +1,23 @@
 RELEASE NOTES
 
+0.3.0 (10/15/2018) VC
+-- Internal pagination so harvesting paginates in chunks rather than relying on Spotlight. This allows for large batches to be pushed incrementally.
+
+0.2.1 (10/15/2018) VC
+-- Allows for harvesting from a Solr index. Example mapping files are in the examples folder. 
+-- Fix to harvester for OAI harvesting in prod
+
+0.2.0 (08/24/2018) VC
+-- Solr mapping ability
+
+0.1.2 (08/13/2018) VC
+-- Transforms IDS uri thumbs to IIIF when necessary
+-- Adds ?buttons=y to all IDS full images to trigger Mirador
+
+0.1.1 (07/16/2018) VC
+-- Ability to add a 'multivalue-breaks' field to the YAML which separates fields with more than one value into individual values
+-- Uniquifies multivalue fields
+
 0.1.0 (05/30/2018) VC
 -- Adding the ability to use XPath logic in the YAML file
    

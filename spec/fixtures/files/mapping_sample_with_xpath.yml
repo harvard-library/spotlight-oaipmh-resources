@@ -146,10 +146,12 @@
         attribute: type
         attribute-value: publications
 - spotlight-field: xpath-test_ssim
-  xpath: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+  xpath: 
+     - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
 - spotlight-field: xpath-test-harvard-namespace_ssim
-  xpath: "//HarvardDRS:DRSMetadata/HarvardDRS:ownerCode"
-  xpath_namespace_prefix: "HarvardDRS"
-  xpath_namespace_def: "http://hul.harvard.edu/ois/xml/ns/HarvardDRS"          
+  xpath: 
+     - xpath-value: "//HarvardDRS:DRSMetadata/HarvardDRS:ownerCode"
+       xpath-namespace-prefix: "HarvardDRS"
+       xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/HarvardDRS"          
         
           

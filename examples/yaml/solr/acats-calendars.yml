@@ -1,0 +1,104 @@
+# From Mongo Solr: acatcalendar
+# To Spotlight Solr
+#
+# 2018-08-23: update with hashKey (RKW)
+# 2018-08-20: rev. draft (RKW)
+# 2018-08-16: 1st draft (RKW) 
+#
+# - spotlight-field: xxx (field names should be separated with dashes except for the suffix: firstpart-secondpart_ssim or _tesim)
+#    multivalue-breaks: "yes" (optional) - use this for splitting out multiple values to be broken on (and faceted on) individually (ex - subjects)
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    solr-field:
+#        - field-name: xxx (repeatable - all fields will be concatenated with the delimiter above)
+#
+- spotlight-field: unique-id_tesim 
+  solr-field:
+      - field-name: hashKey
+#
+- spotlight-field: full_title_tesim
+  delimiter: ", "
+  solr-field:
+      - field-name: SCHOOL_NM
+      - field-name: year
+      - field-name: semester
+#
+- spotlight-field: school-short-name_ssim
+  solr-field:
+      - field-name: SCHOOL_SHORT_NAME
+#
+- spotlight-field: school-short-name_tesim
+  solr-field:
+      - field-name: SCHOOL_SHORT_NAME
+#
+- spotlight-field: school-name_ssim
+  solr-field:
+      - field-name: SCHOOL_NM
+#
+- spotlight-field: school-name_tesim
+  solr-field:
+      - field-name: SCHOOL_NM
+#
+- spotlight-field: semester_ssim
+  solr-field:
+      - field-name: semester
+#
+- spotlight-field: semester_tesim
+  solr-field:
+      - field-name: semester
+#
+- spotlight-field: year_ssim
+  solr-field:
+      - field-name: year
+#
+- spotlight-field: year_tesim
+  solr-field:
+      - field-name: year
+#
+- spotlight-field: start-year_ssim
+  solr-field:
+      - field-name: startYear
+#
+- spotlight-field: end-year_ssim
+  solr-field:
+      - field-name: endYear
+#
+- spotlight-field: first-day-of-classes_tesim
+  solr-field:
+      - field-name: START_DT
+#
+- spotlight-field: last-day-of-classes_tesim
+  solr-field:
+      - field-name: END_DT
+#
+- spotlight-field: first-cross-registration_tesim
+  solr-field:
+      - field-name: XREG_START_DT
+#
+- spotlight-field: last-cross-registration_tesim
+  solr-field:
+      - field-name: XREG_END_DT
+#
+- spotlight-field: drop-deadline_tesim
+  solr-field:
+      - field-name: DROP_DT
+#
+- spotlight-field: start-of-exams_tesim
+  solr-field:
+      - field-name: EXAM_START_DT
+#
+- spotlight-field: end-of-exams_tesim
+  solr-field:
+      - field-name: EXAM_END_DT
+#
+- spotlight-field: withdrawal-deadline_tesim
+  solr-field:
+      - field-name: WITHDRAWAL_DT
+#
+- spotlight-field: start-of-vacation_tesim
+  solr-field:
+      - field-name: VACATION_START_DT
+#
+- spotlight-field: end-of-vacation_tesim
+  solr-field:
+      - field-name: VACATION_END_DT

@@ -14,19 +14,18 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  # s.add_dependency 'blacklight-spotlight', github: 'harvard-library/spotlight', :branch => 'log_entries'
   s.add_dependency 'oai'
   s.add_dependency 'mods'
   s.add_development_dependency "bundler"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'capybara'
-  s.add_development_dependency 'factory_girl_rails'
+  s.add_development_dependency 'factory_bot_rails'
   s.add_development_dependency "riiif"
   s.add_development_dependency 'libxml-ruby'
   s.add_development_dependency "engine_cart", '0.10.0'
   s.add_development_dependency 'database_cleaner', '~> 1.3'
   s.add_development_dependency 'blacklight-gallery'
   s.add_development_dependency 'sitemap_generator'
-
+  
 end

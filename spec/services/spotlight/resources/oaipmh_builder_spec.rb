@@ -1,6 +1,6 @@
 require 'spec_helper'
 RSpec.describe Spotlight::Resources::OaipmhBuilder do
-  let(:exhibit) { FactoryGirl.create(:exhibit) }
+  let(:exhibit) { FactoryBot.create(:exhibit) }
   let(:doc_builder) { described_class.new(resource) }
   let(:resource) { Spotlight::Resources::OaipmhHarvester.new(exhibit_id: exhibit.id, data: {base_url: 'http://api-qa.lib.harvard.edu:8080/oai', set: 'CNA'}) }
 

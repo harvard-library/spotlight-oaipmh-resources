@@ -45,15 +45,13 @@
   mods:
       - path: titleInfo/title
 - spotlight-field: creator_tesim
-#  mods:
-#      - path: plain_name
-#        delimiter: " , "
-##        mods-path: role/roleTerm
-#        mods-value: creator
-#        subpaths:
-#          - subpath: namePart
-  xpath:
-      - xpath-value: "//mods:name[mods:role/mods:roleTerm='creator']/mods:namePart"
+  mods:
+      - path: plain_name
+        delimiter: " , "
+        mods-path: role/roleTerm
+        mods-value: creator
+        subpaths:
+          - subpath: namePart
 - spotlight-field: start-date_tesim
   mods:
       - path: originInfo/dateCreated
@@ -98,17 +96,15 @@
       - path: language/languageTerm
 - spotlight-field: repository_ssim
   delimiter: "|"
-  xpath:
-      - xpath-value: "//mods:location/mods:physicalLocation[@type='repository']"
-  #mods:
-  #    - path: location/physicalLocation
-   #     attribute: type
-   #     attribute-value: repository
- #     - path: relatedItem
- #       subpaths:
- #         - subpath: location/physicalLocation
- #       attribute: displayLabel
- #       attribute-value: collection
+  mods:
+      - path: location/physicalLocation
+        attribute: type
+        attribute-value: repository
+      - path: relatedItem
+        subpaths:
+          - subpath: location/physicalLocation
+        attribute: displayLabel
+        attribute-value: collection
 - spotlight-field: subjects_ssim
   delimiter: "|"
   mods:
@@ -193,17 +189,5 @@
       - path: relatedItem/location/url
         attribute: otherType
         attribute-value: HOLLIS record
-- spotlight-field: catalog-url_tesim
-  xpath:
-      - xpath-value: "//mods:relatedItem[@otherType='HOLLIS record' or @otherType='HOLLIS Images record']/mods:location/mods:url"
-- spotlight-field: finding-aid_tesim
-  xpath:
-      - xpath-value: "//mods:relatedItem[@otherType='Finding Aid']/mods:location/mods:url"
-- spotlight-field: collection-title_tesim
-  xpath:
-      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:titleInfo/mods:title"
-- spotlight-field: collection-title-date_tesim
-  xpath:
-      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:originInfo/mods:dateCreated"
 
  

@@ -1,16 +1,19 @@
 en:
   spotlight:
     resources:
-        oaipmh_harvester:
+        harvester:
             form:
-              title: 'OAI-PMH MODS Harvest URL'
+              title: 'Metadata Harvesting'
+              type: "Harvesting Type"
+              type-field:
+                help: "Choose where to harvest from (eg - Solr, OAI)"
               url: "Base URL"
-              add_item: "Add MODS items"
+              add_item: "Harvest items"
               url-field:
-                help: "Add the base URL of the OAI MODS Set."
+                help: "Add the base URL of the data to be harvested."
               set: "Set name"
               set-field:
-                help: "Type in the MODS set name."
+                help: "Type in the set name to be harvested."
               mapping-file: "Select Mapping File"
               mapping-file-field:
                 help: "Select Mapping File to Use (default is mapping.yml)"

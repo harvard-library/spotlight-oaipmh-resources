@@ -6,10 +6,8 @@ include OAI::XPath
 include Spotlight::Resources::Exceptions
 module Spotlight::Resources
   class OaipmhModsItem
-    #extend CarrierWave::Mount
     attr_reader :titles, :id
-    attr_accessor :metadata, :itemurl, :sidecar_data
-    #mount_uploader :itemurl, Spotlight::ItemUploader
+    attr_accessor :metadata, :sidecar_data
     def initialize(exhibit, converter, cna_config)
       @solr_hash = {}
       @exhibit = exhibit

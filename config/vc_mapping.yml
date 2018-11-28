@@ -1,6 +1,7 @@
 #Structure:
-
-#  - spotlight-field: xxx
+#
+#  - spotlight-field: xxx (field names should be separated with dashes except for the suffix: firstpart-secondpart_ssim or _tesim)
+#    multivalue-breaks: "yes" (optional) - use this for splitting out multiple values to be broken on (and faceted on) individually (ex - subjects)
 #    default-value: xxx (optional)
 #    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
 #    mods:
@@ -13,13 +14,13 @@
 #          subpaths: 
 #            - subpath: xxx
 #            - subpath: xxx
-#    xpath: xxx
-#    xpath_namespace_prefix: xxx
-#    xpath_namespace_def: xxx
+#    xpath: 
+#        - xpath_value: xxx
+#          xpath_namespace_prefix: xxx (optional, default is mods)
+#          xpath_namespace_def: xxx (optional, default is mods)
 #
-# TODO: update structure
-# TODO: indicate how to create the spotlight field name (dash, not underscore)
-# TODO: indicate hard coded Spotlight fields
+# Hard coded Spotlight fields:
+# full_image_url_ssm, spotlight_upload_description_tesim, thumbnail_url_ssm
 #
 - spotlight-field: unique-id_tesim
   mods:
@@ -28,14 +29,39 @@
   delimiter: ": "
   mods:
       - path: titleInfo
+        attribute: type
+        attribute-value: '!uniform' 
         delimiter: " "
         subpaths:
           - subpath: nonSort
           - subpath: title
+          - subpath: partNumber
+          - subpath: partName 
       - path: titleInfo/subTitle
+      - path: relatedItem
+        attribute: type
+        attribute-value: constituent
+        subpaths:
+          - subpath: titleInfo/title
+#  the path below picks up one level of hierarchy, e.g.,
+#  /relatedItem[@type="host"]/titleInfo/title, NOT
+#  //relatedItem[@type="host"]/titleInfo/title
+      - path: relatedItem
+        attribute: type
+        attribute-value: host
+        subpaths:
+          - subpath: titleInfo/title
+#  The path below did not work, even when I removed the type=host path above.
+      - path: relatedItem/relatedItem
+        attribute: displayLabel
+        attribute-value: collection
+        subpaths:
+          - subpath: titleInfo/title
+          
 - spotlight-field: citation-title_tesim
   mods:
       - path: titleInfo/title
+#plain_name is a custom name used in the mods gem
 - spotlight-field: creator_tesim
   mods:
       - path: plain_name
@@ -101,12 +127,12 @@
   delimiter: "|"
   mods: 
       - path: language/languageTerm
-- spotlight-field: repository_ssim
-  delimiter: "|"
-  mods:
-      - path: location/physicalLocation
-        attribute: type
-        attribute-value: repository
+#- spotlight-field: repository_ssim
+#  delimiter: "|"
+#  mods:
+#      - path: location/physicalLocation
+#        attribute: type
+#        attribute-value: repository
 - spotlight-field: repository_tesim
   delimiter: "|"
   mods:
@@ -114,6 +140,7 @@
         attribute: type
         attribute-value: repository
 - spotlight-field: subjects_ssim
+  multivalue-breaks: "yes"
   delimiter: "|"
   mods:
       - path: subject
@@ -192,9 +219,33 @@
   mods:
       - path: tableOfContents
 - spotlight-field: xpath-test_ssim
-  xpath: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//mods:location/mods:physicalLocation[@type='repository']"
+      - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
 - spotlight-field: xpath-test-harvard-namespace_ssim
-  xpath: "//HarvardDRS:DRSMetadata/HarvardDRS:metsLabel"
-  xpath_namespace_prefix: "HarvardDRS"
-  xpath_namespace_def: "http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//HarvardDRS:DRSMetadata/HarvardDRS:metsLabel"
+        xpath-namespace-prefix: "HarvardDRS"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
+      - xpath-value: "//HarvardDRS:DRSMetadata/HarvardDRS:ownerCodeDisplayName"
+        xpath-namespace-prefix: "HarvardDRS"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
+- spotlight-field: xpath-mods-test_ssim
+  mods:
+      - path: location/physicalLocation
+        attribute: type
+        attribute-value: repository
+  xpath:
+      - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+- spotlight-field: repository_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+       - xpath-value: "//mods:location/mods:physicalLocation[@type='repository']"
+       - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+       - xpath-value: "//mods:relatedItem[@type='constituent']/mods:location/mods:physicalLocation[@type='repository']"
+- spotlight-field: hollis-record_tesim
+  xpath:
+       - xpath-value: "//mods:relatedItem[@otherType='HOLLIS record' or @otherType='HOLLIS Images record']/mods:location/mods:url"
          

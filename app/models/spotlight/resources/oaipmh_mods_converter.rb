@@ -1,7 +1,9 @@
 include Spotlight::Resources::Exceptions
 module Spotlight::Resources
   
-
+  class XPathEntry
+     attr_accessor :xpath_string, :xpath_ns_prefix, :xpath_ns_def
+   end
   class ModsPath
     attr_accessor :path, :subpaths, :delimiter
   end
@@ -9,7 +11,7 @@ module Spotlight::Resources
     attr_accessor :mods_path, :mods_attribute, :mods_attribute_value, :conditional_mods_value, :conditional_mods_path
   end
   class ConverterItem
-    attr_accessor :spotlight_field, :mods_items, :default_value, :delimiter, :xpath_string, :xpath_namespace_def, :xpath_namespace_prefix
+    attr_accessor :spotlight_field, :mods_items, :default_value, :delimiter, :xpath_items, :multivalue_facets
     
     RESERVED_WORDS = {'name'=> "name_el", 'description' => 'description_el', 'type' => 'type_at'}
     TOP_LEVEL_ELEMENTS_SIMPLE = [
@@ -29,38 +31,84 @@ module Spotlight::Resources
       delimiter = ", "
     end
     
-    def extract_value(modsrecord)
-      values = Array.new
-              
-      mods_items.each do |item|
-        #Throw error if path value fails
-        begin
-          node = modsrecord.mods_ng_xml
-          
-          retvalues = parse_paths(item, node)
-          if (retvalues.empty? && !default_value.blank?)
-            value = default_value
-            values << value
-          elsif (!retvalues.empty?)
-            #Remove duplicates
-            retvalues = retvalues.uniq
-            value = retvalues.join(delimiter)
-            values << value
-          end
-          
-        rescue NoMethodError => e
-          puts e.message
-          puts e.backtrace
-          puts  "The path " + item.mods_path.path + " does not exist\n"
-        end
+    def extract_all_values(modsrecord)
       
-      end
+      xpath_values = extract_xpath_values(modsrecord)
+      mods_values = extract_mods_values(modsrecord)
+      
+      values = xpath_values.concat(mods_values)
+      
+      #Remove duplicates
+      values = values.uniq
+      
+      finalvalue = nil
       if (!values.empty?)
-        values = values.uniq
-        values.join(delimiter) 
-      end
+        #if multiple values, allow for faceting on each item by keeping it as an array
+        if (!multivalue_facets.nil? && (multivalue_facets.eql?("yes") || multivalue_facets))
+          
+          finalvalue = values;
+        else
+          finalvalue = values.join(delimiter)
+        end
+      end 
+      finalvalue
+    end
+    
+private
+    
+    def extract_xpath_values(modsrecord)
+      values = Array.new
+      if (!xpath_items.nil?)
+        xpath_items.each do |item|
+          node = modsrecord.mods_ng_xml
+          if (!item.xpath_ns_def.nil?)
+        		retnodes = node.xpath(item.xpath_string, {item.xpath_ns_prefix => item.xpath_ns_def})
+      		else
+         		retnodes = node.xpath(item.xpath_string)
+      		end
+                  
+      		if (retnodes.empty? && !default_value.blank?)
+           	value = default_value
+            values << value
+   				elsif (!retnodes.empty?)
+          	retnodes.each do |retnode|
+          		values << retnode.text
+          	end
+         	end
+    		end
+    	end
+    	values
     end
 
+    def extract_mods_values(modsrecord)
+      values = Array.new
+      if (!mods_items.nil?)   
+        mods_items.each do |item|
+          #Throw error if path value fails
+          begin
+            node = modsrecord.mods_ng_xml
+            
+            retvalues = parse_paths(item, node)
+            if (retvalues.empty? && !default_value.blank?)
+              value = default_value
+              values << value
+            elsif (!retvalues.empty?)
+              retvalues.each do |retnode|
+                values << retnode
+              end
+              #values << retvalues
+            end
+            
+          rescue NoMethodError => e
+            puts e.message
+            puts e.backtrace
+            puts  "The path " + item.mods_path.path + " does not exist\n"
+          end
+        
+        end
+      end
+      values
+    end
     
     #Creates the proper path and subpath names to use since some words may be reserved.
     #It then uses these paths to search for the value in the Mods::Record
@@ -271,32 +319,12 @@ end
         
       @converter_items.each do |item|
         node = modsrecord.mods_ng_xml
-        value = nil
-        if (!item.xpath_string.nil?)
-          values = Array.new
-          if (!item.xpath_namespace_def.nil?)
-          retnodes = node.xpath(item.xpath_string, {item.xpath_namespace_prefix => item.xpath_namespace_def})
-          else
-            retnodes = node.xpath(item.xpath_string)
-          end
-          if (retnodes.empty? && !item.default_value.blank?)
-            value = item.default_value
-            values << value
-          elsif (!retnodes.empty?)
-            retnodes.each do |retnode|
-              values << retnode.text
-            end
-          end
-          if (!values.empty?)
-            value = values.join(item.delimiter)
-          end
-        else
-          value = item.extract_value(modsrecord)
-        end
-        if (!value.nil? && !value.empty?)
-          solr_hash[get_spotlight_field_name(item.spotlight_field)] = value
-          @sidecar_hash[item.spotlight_field] = value
-        end
+        value = item.extract_all_values(modsrecord)
+          
+      #Not sure why but if a value isn't assigned, the last existing value for the field gets
+      #placed in all non-existing values
+       solr_hash[get_spotlight_field_name(item.spotlight_field)] = value
+       @sidecar_hash[item.spotlight_field] = value
       end
       solr_hash
     end
@@ -325,101 +353,114 @@ end
   #private
   
    #parses the mapping file into a model
-  def parse_mapping_file(file)
-    
-    mapping_config = YAML.load_file(file)
-    mapping_config.each do |field|
+    def parse_mapping_file(file)
       
-      item = ConverterItem.new
-      #validate the spotlight-field is not null
-      if (!field.key?("spotlight-field") || field['spotlight-field'].blank?)
-        raise InvalidMappingFile, "spotlight-field is required for each entry"
-      end
-      item.spotlight_field = field['spotlight-field']
-      
-      if (field.key?("delimiter"))
-        item.delimiter = field["delimiter"]
-      end
-      if (field.key?("default-value"))
-        item.default_value = field["default-value"]
-      end
-      
-      #must have a mods or xpath 
-      if (!field.key?("mods") && (!field.key?('xpath') || field['xpath'].blank?))
-        raise InvalidMappingFile, "mods or xpath is required for each entry"
-      end
-      
-      #Can only have mods OR xpath
-      if (field.key?('mods') && field.key('xpath'))
-        raise InvalidMappingFile, "Use either mods OR xpath for each entry but not both"
-      end
-      
-      #if using xpath, then add the values from xpath
-      if (field.key?('xpath'))
-        item.xpath_string = field['xpath']
-        if (field.key?('xpath_namespace_prefix') && field.key?('xpath_namespace_def'))
-          item.xpath_namespace_def = field['xpath_namespace_def']
-          item.xpath_namespace_prefix = field['xpath_namespace_prefix']
+      mapping_config = YAML.load_file(file)
+      mapping_config.each do |field|
+        
+        item = ConverterItem.new
+        #validate the spotlight-field is not null
+        if (!field.key?("spotlight-field") || field['spotlight-field'].blank?)
+          raise InvalidMappingFile, "spotlight-field is required for each entry"
         end
-      #otherwise use mods
-        else
-        item.mods_items = Array.new
-        field['mods'].each do |mods_field|
-          modsitem = ModsItem.new
-          #validate the path is not null
-          if (!mods_field.key?("path") || mods_field['path'].blank?)
-            raise InvalidMappingFile, "path is required for each mods entry"
-          end
-               
-          modsitem.mods_path = ModsPath.new
-          #The mods gem has special names for certain reserved words/paths
-          if (RESERVED_PATHS.key?(mods_field['path']))
-            modsitem.mods_path.path = RESERVED_PATHS[mods_field['path']]
-          else
-            modsitem.mods_path.path = mods_field['path']
-          end
-          
-          
-          if (mods_field.key?('subpaths'))
-            subpaths = Array.new
-            mods_field['subpaths'].each do |subpath|
-              subpaths << subpath['subpath']
+        item.spotlight_field = field['spotlight-field']
+        
+        if (field.key?("delimiter"))
+          item.delimiter = field["delimiter"]
+        end
+        if (field.key?("default-value"))
+          item.default_value = field["default-value"]
+        end
+    
+        if (field.key?("multivalue-breaks"))
+          item.multivalue_facets = field["multivalue-breaks"]
+        end
+        
+        #must have a mods or xpath 
+        if (!field.key?("mods") && (!field.key?('xpath') || field['xpath'].blank?))
+          raise InvalidMappingFile, "mods or xpath is required for each entry"
+        end
+        
+        #Can only have mods OR xpath
+        if (field.key?('mods') && field.key('xpath'))
+          raise InvalidMappingFile, "Use either mods OR xpath for each entry but not both"
+        end
+        
+        #if using xpath, then add the values from xpath
+        if (field.key?('xpath'))
+          item.xpath_items = Array.new
+          field['xpath'].each do |xpath_field|
+            if (!xpath_field.key?("xpath-value") || xpath_field['xpath-value'].blank?)
+              raise InvalidMappingFile, "xpath_value is required for each xpath entry"
             end
-            modsitem.mods_path.subpaths = subpaths
-          end
-          
-          if (mods_field.key?('delimiter'))
-            modsitem.mods_path.delimiter = mods_field['delimiter']
-          end
-          modsitem.conditional_mods_value = mods_field['mods-value']
-                
-          if (mods_field.key?('attribute'))
-            if (!mods_field.key?('attribute-value'))
-              raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": attribute-value is required if attribute is present" 
+            xpathitem = XPathEntry.new
+            xpathitem.xpath_string = xpath_field['xpath-value']
+            if (xpath_field.key?('xpath-namespace-prefix') && xpath_field.key?('xpath-namespace-def'))
+              xpathitem.xpath_ns_def = xpath_field['xpath-namespace-def']
+              xpathitem.xpath_ns_prefix = xpath_field['xpath-namespace-prefix']
             end
-            modsitem.mods_attribute = mods_field['attribute']
-            modsitem.mods_attribute_value = mods_field['attribute-value']
+            item.xpath_items << xpathitem
           end
-          
-          if (mods_field.key?('mods-path'))
-            if (!mods_field.key?('mods-value'))
-              raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": mods-value is required if mods-path is present" 
+        end
+        #otherwise use mods
+        if (field.key?('mods'))
+          item.mods_items = Array.new
+          field['mods'].each do |mods_field|
+            modsitem = ModsItem.new
+            #validate the path is not null
+            if (!mods_field.key?("path") || mods_field['path'].blank?)
+              raise InvalidMappingFile, "path is required for each mods entry"
             end
-            if (RESERVED_PATHS.key?(mods_field['mods-path']))
-              modsitem.conditional_mods_path = RESERVED_PATHS[mods_field['mods-path']]
+                 
+            modsitem.mods_path = ModsPath.new
+            #The mods gem has special names for certain reserved words/paths
+            if (RESERVED_PATHS.key?(mods_field['path']))
+              modsitem.mods_path.path = RESERVED_PATHS[mods_field['path']]
             else
-              modsitem.conditional_mods_path = mods_field['mods-path']
+              modsitem.mods_path.path = mods_field['path']
+            end
+            
+            
+            if (mods_field.key?('subpaths'))
+              subpaths = Array.new
+              mods_field['subpaths'].each do |subpath|
+                subpaths << subpath['subpath']
+              end
+              modsitem.mods_path.subpaths = subpaths
+            end
+            
+            if (mods_field.key?('delimiter'))
+              modsitem.mods_path.delimiter = mods_field['delimiter']
             end
             modsitem.conditional_mods_value = mods_field['mods-value']
-          end
                   
-          item.mods_items << modsitem
-        end #mods
+            if (mods_field.key?('attribute'))
+              if (!mods_field.key?('attribute-value'))
+                raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": attribute-value is required if attribute is present" 
+              end
+              modsitem.mods_attribute = mods_field['attribute']
+              modsitem.mods_attribute_value = mods_field['attribute-value']
+            end
+            
+            if (mods_field.key?('mods-path'))
+              if (!mods_field.key?('mods-value'))
+                raise InvalidMappingFile, field['spotlight-field'] + " - " + mods_field['path'] + ": mods-value is required if mods-path is present" 
+              end
+              if (RESERVED_PATHS.key?(mods_field['mods-path']))
+                modsitem.conditional_mods_path = RESERVED_PATHS[mods_field['mods-path']]
+              else
+                modsitem.conditional_mods_path = mods_field['mods-path']
+              end
+              modsitem.conditional_mods_value = mods_field['mods-value']
+            end
+                    
+            item.mods_items << modsitem
+          end #mods
+        end
+        @converter_items << item
       end
-      @converter_items << item
+      @converter_items
     end
-    @converter_items
-  end
   
   
   end

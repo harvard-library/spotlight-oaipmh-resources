@@ -1,0 +1,71 @@
+# From Mongo Solr: acatfaculty  
+# To Spotlight Solr
+#
+# 2018-08-24: replaced record-id with unique-id_tesim / hashKey (RKW)
+# 2018-08-20: rev. draft (RKW)
+# 2018-08-16: 1st draft (RKW) 
+#
+# - spotlight-field: xxx (field names should be separated with dashes except for the suffix: firstpart-secondpart_ssim or _tesim)
+#    multivalue-breaks: "yes" (optional) - use this for splitting out multiple values to be broken on (and faceted on) individually (ex - subjects)
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    solr-field:
+#        - field-name: xxx (repeatable - all fields will be concatenated with the delimiter above)
+#
+- spotlight-field: unique-id_tesim
+  solr-field:
+      - field-name: hashKey
+#
+- spotlight-field: full_title_tesim
+  delimiter: ", "
+  solr-field:
+      - field-name: PREFERRED_NM
+#
+- spotlight-field: school-short-name_ssim
+  solr-field:
+      - field-name: SCHOOL_SHORT_NAME
+#
+- spotlight-field: school-short-name_tesim
+  solr-field:
+      - field-name: SCHOOL_SHORT_NAME
+#
+- spotlight-field: school-name_ssim
+  solr-field:
+      - field-name: SCHOOL_NM
+#
+- spotlight-field: school-name_tesim
+  solr-field:
+      - field-name: SCHOOL_NM
+#
+- spotlight-field: department_ssim
+  solr-field:
+      - field-name: DEPT_AREA_CATEGORY
+#
+- spotlight-field: department_tesim
+  solr-field:
+      - field-name: DEPT_AREA_CATEGORY
+#
+- spotlight-field: faculty-name_ssim
+  solr-field:
+      - field-name: PREFERRED_NM
+#
+- spotlight-field: faculty-name_tesim
+  solr-field:
+      - field-name: PREFERRED_NM
+#
+- spotlight-field: academic-year_ssim
+  solr-field:
+      - field-name: academicYear
+#
+- spotlight-field: academic-year_tesim
+  solr-field:
+      - field-name: academicYear
+#
+- spotlight-field: start-year_ssim
+  solr-field:
+      - field-name: startYear
+#
+- spotlight-field: end-year_ssim
+  solr-field:
+      - field-name: endYear
+
