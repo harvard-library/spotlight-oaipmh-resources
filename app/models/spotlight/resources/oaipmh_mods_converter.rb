@@ -42,6 +42,8 @@ module Spotlight::Resources
             value = default_value
             values << value
           elsif (!retvalues.empty?)
+            #Remove duplicates
+            retvalues = retvalues.uniq
             value = retvalues.join(delimiter)
             values << value
           end
