@@ -4,7 +4,6 @@ module Spotlight
     class OaipmhBuilder < Spotlight::SolrDocumentBuilder
       
       def to_solr
-        begin
         return to_enum(:to_solr) { 0 } unless block_given?
 
         base_doc = super
@@ -97,10 +96,10 @@ module Spotlight
               Delayed::Worker.logger.add(Logger::ERROR, e.message)
               Delayed::Worker.logger.add(Logger::ERROR, e.backtrace)
             end
-          end
-          if (!resumption_token.nil?)
-            harvests = resource.resumption_oaipmh_harvests(resumption_token)
-            resumption_token = harvests.resumption_token
+            if (!resumption_token.nil?)
+              harvests = resource.resumption_oaipmh_harvests(resumption_token)
+              resumption_token = harvests.resumption_token
+            end
           end
         end
       end
@@ -132,36 +131,36 @@ module Spotlight
       
       def perform_lookups(input, data_type)
         begin
-        import_arr = []
-        if (!input.to_s.blank?)
-          input_codes = input.split('|')
-          
-          input_codes.each do |code|
-            code = code.strip
-            if (!code.blank?)
-              item = nil
-              if data_type == "lang"
-                item = Cnalanguage.find_by(code: code)
-              else
-                item = Origin.find_by(code: code)
-              if (failed_items.nil?)
-                failed_items = Array.new
+          import_arr = []
+          if (!input.to_s.blank?)
+            input_codes = input.split('|')
+            
+            input_codes.each do |code|
+              code = code.strip
+              if (!code.blank?)
+                item = nil
+                if data_type == "lang"
+                  item = Cnalanguage.find_by(code: code)
+                else
+                  item = Origin.find_by(code: code)
+                if (failed_items.nil?)
+                  failed_items = Array.new
+                end
+                failed_items << @item.id
               end
-              failed_items << @item.id
+            end
+  
+            #Stop harvesting if the batch has reached the maximum allowed value
+            if (!resumption_token.nil?) 
+          		if (max_batch_count != -1 && count >= max_batch_count)
+                schedule_next_batch(resumption_token, totalrecords, failed_items)
+          		  break
+          		else
+               harvests = resource.paginate(resumption_token)
+               resumption_token = harvests.resumption_token
+              end
             end
           end
-
-          #Stop harvesting if the batch has reached the maximum allowed value
-          if (!resumption_token.nil?) 
-        		if (max_batch_count != -1 && count >= max_batch_count)
-              schedule_next_batch(resumption_token, totalrecords, failed_items)
-        		  break
-        		else
-             harvests = resource.paginate(resumption_token)
-             resumption_token = harvests.resumption_token
-            end
-          end
-        
         end
         rescue Exception => e
           resource.get_job_entry.failed!
