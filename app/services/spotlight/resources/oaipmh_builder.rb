@@ -17,6 +17,8 @@ module Spotlight
         
         @cna_config = YAML.load_file(Spotlight::Oaipmh::Resources::Engine.root + 'config/cna_config.yml')[Rails.env]
         
+        max_batch_count = Spotlight::Oaipmh::Resources::Engine.config.oai_harvest_batch_max
+        
         @oai_mods_converter = OaipmhModsConverter.new(resource.data[:set], resource.exhibit.slug, mapping_file)
         
         count = 0
