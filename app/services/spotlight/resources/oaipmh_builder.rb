@@ -43,7 +43,7 @@ module Spotlight
             last_page_evaluated = true
           end
           harvests.each do |record|
-            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter)
+            @item = OaipmhModsItem.new(exhibit, @oai_mods_converter, @cna_config)
             @item.metadata = record.metadata
             @item.parse_mods_record()
             begin
