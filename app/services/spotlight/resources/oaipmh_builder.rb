@@ -4,6 +4,7 @@ module Spotlight
     class OaipmhBuilder < Spotlight::SolrDocumentBuilder
       
       def to_solr
+        begin
         return to_enum(:to_solr) { 0 } unless block_given?
 
         base_doc = super
@@ -95,12 +96,35 @@ module Spotlight
               Delayed::Worker.logger.add(Logger::ERROR, @item.id + ' did not index successfully')
               Delayed::Worker.logger.add(Logger::ERROR, e.message)
               Delayed::Worker.logger.add(Logger::ERROR, e.backtrace)
+              if (failed_items.nil?)
+                  failed_items = Array.new
+                end
+                failed_items << @item.id
             end
-            if (!resumption_token.nil?)
-              harvests = resource.resumption_oaipmh_harvests(resumption_token)
-              resumption_token = harvests.resumption_token
+            #Stop harvesting if the batch has reached the maximum allowed value
+            if (!resumption_token.nil?) 
+              if (max_batch_count != -1 && count >= max_batch_count)
+                schedule_next_batch(resumption_token, totalrecords, failed_items)
+                break
+              else
+                harvests = resource.paginate(resumption_token)
+                resumption_token = harvests.resumption_token
+              end
             end
           end
+        end
+        rescue Exception => e
+          resource.get_job_entry.failed!
+          Delayed::Worker.logger.add(Logger::ERROR, resource.data[:set] + ' harvest failed')
+          Delayed::Worker.logger.add(Logger::ERROR, e.message)
+          Delayed::Worker.logger.add(Logger::ERROR, e.backtrace)
+          Spotlight::HarvestingCompleteMailer.harvest_failed(resource.data[:set], resource.exhibit, resource.data[:user], e.message).deliver_now
+          raise
+        end
+        if (last_page_evaluated)
+          resource.get_job_entry.succeeded!
+          #Send job message
+          Spotlight::HarvestingCompleteMailer.harvest_indexed(resource.data[:set], resource.exhibit, resource.data[:user], failed_items).deliver_now
         end
       end
    
@@ -130,7 +154,6 @@ module Spotlight
       end
       
       def perform_lookups(input, data_type)
-        begin
           import_arr = []
           if (!input.to_s.blank?)
             input_codes = input.split('|')
@@ -143,38 +166,14 @@ module Spotlight
                   item = Cnalanguage.find_by(code: code)
                 else
                   item = Origin.find_by(code: code)
-                if (failed_items.nil?)
-                  failed_items = Array.new
+                  if (failed_items.nil?)
+                    failed_items = Array.new
+                  end
+                  failed_items << @item.id
                 end
-                failed_items << @item.id
               end
             end
-  
-            #Stop harvesting if the batch has reached the maximum allowed value
-            if (!resumption_token.nil?) 
-          		if (max_batch_count != -1 && count >= max_batch_count)
-                schedule_next_batch(resumption_token, totalrecords, failed_items)
-          		  break
-          		else
-               harvests = resource.paginate(resumption_token)
-               resumption_token = harvests.resumption_token
-              end
-            end
-          end
-        end
-        rescue Exception => e
-          resource.get_job_entry.failed!
-          Delayed::Worker.logger.add(Logger::ERROR, resource.data[:set] + ' harvest failed')
-          Delayed::Worker.logger.add(Logger::ERROR, e.message)
-          Delayed::Worker.logger.add(Logger::ERROR, e.backtrace)
-          Spotlight::HarvestingCompleteMailer.harvest_failed(resource.data[:set], resource.exhibit, resource.data[:user], e.message).deliver_now
-          raise
-        end
-        if (last_page_evaluated)
-        	resource.get_job_entry.succeeded!
-        	#Send job message
-          Spotlight::HarvestingCompleteMailer.harvest_indexed(resource.data[:set], resource.exhibit, resource.data[:user], failed_items).deliver_now
-       	end
+          end    
       end
 
 private   
