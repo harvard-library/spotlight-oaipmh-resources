@@ -168,10 +168,6 @@ module Spotlight
                   item = Cnalanguage.find_by(code: code)
                 else
                   item = Origin.find_by(code: code)
-                  if (failed_items.nil?)
-                    failed_items = Array.new
-                  end
-                  failed_items << @item.id
                 end
               end
             end
