@@ -183,6 +183,18 @@ private
         Spotlight::Resources::PerformHarvestsJob.perform_later(resource.data[:type], resource.data[:base_url], resource.data[:set], resource.data[:mapping_file], resource.exhibit, resource.data[:user], resource.data[:job_entry], cursor, count, failed_items)
       end
       
+      def lookup_languages_and_origins()
+        ###CNA Specific - Language and origin
+        lang_field_name = @oai_mods_converter.get_spotlight_field_name("language_ssim")
+        origin_field_name = @oai_mods_converter.get_spotlight_field_name("origin_ssim")
+        language = perform_lookups(@item_solr[lang_field_name], "lang")
+        origin = perform_lookups(@item_solr[origin_field_name], "orig")
+        @item_solr[lang_field_name] = language
+        @item_solr[origin_field_name] = origin
+        @item_sidecar["language_ssim"] = language
+        @item_sidecar["origin_ssim"] = origin
+      end
+      
       def parse_subjects()
         ##CNA Specific - Subjects
         subject_field_name = @oai_mods_converter.get_spotlight_field_name("subjects_ssim")
