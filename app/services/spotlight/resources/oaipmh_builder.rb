@@ -103,15 +103,15 @@ module Spotlight
                 end
                 failed_items << @item.id
             end
-            #Stop harvesting if the batch has reached the maximum allowed value
-            if (!resumption_token.nil?) 
-              if (max_batch_count != -1 && count >= max_batch_count)
-                schedule_next_batch(resumption_token, totalrecords, failed_items)
-                break
-              else
-                harvests = resource.paginate(resumption_token)
-                resumption_token = harvests.resumption_token
-              end
+          end
+          #Stop harvesting if the batch has reached the maximum allowed value
+          if (!resumption_token.nil?)
+            if (max_batch_count != -1 && count >= max_batch_count)
+              schedule_next_batch(resumption_token, totalrecords, failed_items)
+              break
+            else
+              harvests = resource.paginate(resumption_token)
+              resumption_token = harvests.resumption_token
             end
           end
         end
