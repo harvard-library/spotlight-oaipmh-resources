@@ -290,6 +290,10 @@ private
       
       
       def set_item_specific_data(record_type_field_name)
+        
+        catalog_url_field_name = @oai_mods_converter.get_spotlight_field_name("catalog-url_tesim")
+        catalog_url_item = @oai_mods_converter.get_spotlight_field_name("catalog-url_item_tesim")
+                
         repository_field_name = @oai_mods_converter.get_spotlight_field_name("repository_ssim")
                          
         @item_solr[record_type_field_name] = "item"
