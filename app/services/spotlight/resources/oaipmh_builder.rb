@@ -69,8 +69,10 @@ module Spotlight
               
          			#THIS IS SPECIFIC TO CNA   
             	funding_field_name = @oai_mods_converter.get_spotlight_field_name("funding_ssim")
+              funding_field_name_tesim = @oai_mods_converter.get_spotlight_field_name("funding_tesim")
            		if (!@item_solr[funding_field_name].nil? && @item_solr[funding_field_name].include?("Polonsky"))
               	@item_solr[funding_field_name] = "The Polonsky Foundation"
+              	@item_solr[funding_field_name_tesim] = "The Polonsky Foundation"
               	@item_sidecar["funding_ssim"] = "The Polonsky Foundation"
         			end
                                                               
