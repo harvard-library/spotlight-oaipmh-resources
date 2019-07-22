@@ -1,0 +1,727 @@
+#  2019-01-04: Changed permalink xpaths for crimes and dag (RKW)
+#  2018-11-27: Restrict subject terms to those from preferred thesauri; add series title (RKW)
+#  2018-11-19: Corrected digitalFormat entries; Fixed error in style-period_tesim. (RKW)
+#  2018-10-11: Added commented-out object-in-context permalinks for lap, contagion, exp, immigration, ww. Uncomment them once links exist and are confirmed. (RKW)
+#  2018-10-09: Added object-in-context permalink for medieval-&-renaissance-manuscripts (RKW)
+#  2018-10-02: Added object-in-context permalinks for crimes, dag, ihp, scarlet, ward (RKW) 
+#  2018-08-23: Added draft segment for object-in-context (permalink), to be customized per collection (RKW)
+#  2018-07-30: First VC production version (RKW)
+#  2018-07-31: Temporarily changed repository_ssim and repository_tesim to select [@type='repository'] rather than [@displayLabel='Harvard repository'].
+#                Change back after full reingest of all metadata sources. (RKW)
+#
+# Structure:
+#  - spotlight-field: xxx
+#    multivalue-breaks: "yes" (optional) - if you want repeatable values for a given field to be 
+#        handled separately in a facet or to be displayed on separate lines in a record display.
+#    default-value: xxx (optional)
+#    delimiter: xxx (optional, what to separate all path values with.  Defaults to a space)
+#    mods:
+#        - path: xxx (repeatable - all path fields will be concatenated)
+#          delimiter: " " (optional)
+#          attribute: xxx (optional) - attribute, attribute-value, and mods-path+mods-value supply 
+#             conditions which must be met for the spotlight-field to be created.
+#             E.g., only create field if MODS element has @displayLabel where value = "collection".)
+#          attribute-value: xxx (optional, but only used with attribute)
+#          mods-path: xxx (optional)
+#          mods-value: xxx (optional)
+#          subpaths: (optional)
+#            - subpath: xxx
+#            - subpath: xxx
+#    xpath: 
+#        - xpath-value: xxx (repeatable)
+#          xpath-namespace-prefix: xxx (optional)
+#          xpath-namespace-def: xxx (optional)
+#   
+#  Documentation at https://github.com/harvard-library/spotlight-oaipmh-resources/wiki
+#  
+#  Multiterm field names need terms separated with dash, not underscore. Underscore is used 
+#  1) by Stanford-defined baked-in fields and 2) for ssim, tesim, ssm suffixes, etc.   
+#
+#  Spotlight field names in YAML may not contain capital letters.
+#
+#  xPaths with multiple namespaces cannot be mapped. 
+#  xPaths that address the a namespace within a mods:extension without including MODS will work, e.g., 
+#  //cdwalite:cultureWrap/cdwalite:culture, //cdwalite:styleWrap/cdwalite:style, //cdwalite:indexingMaterialsTechSet/cdwalite:termMaterialsTech
+#  
+#  YML structure sensitive to the exact number of leading spaces.
+#  Tabs will cause the ingest to fail.
+#
+#  Things left to do:
+#
+#  -- finding aid link is not readily identifiable in all MODS records. It may be necessary to alter LibraryCloud ingest to flag these in a way that YAML can recognize them.
+#  -- subject/name currently includes only the 1st namePart, and subject/titleInfo only the title subelement. 
+#        Additional subelements can't be correctly formatted if included with current capabilities.
+#  -- consider separating alternate titles from main titles for tesim while still searching together if possible. This will make the list view more readable. 
+#        Distinguish using the titleInfo type attribute, where values can be abbreviated, translated, alternative, or uniform. The primary title would lack a type attribute. 
+#  -- vernacular script elements are messily duplicative when not all parts of script field are in the script 
+#       (See in particular publishers, creation dates, notes.) Exactly duplicate strings will be suppressed from display, but values with any variation, e.g., punctuation will still display.
+
+- spotlight-field: unique-id_tesim
+  mods:
+      - path: recordInfo/recordIdentifier
+    
+- spotlight-field: full_title_tesim
+  delimiter: ": "
+  mods:
+      - path: titleInfo
+        attribute: type
+        attribute-value: '!uniform' 
+        delimiter: " "
+        subpaths:
+          - subpath: nonSort
+          - subpath: title
+          - subpath: partNumber
+          - subpath: partName 
+      - path: titleInfo/subTitle
+      - path: relatedItem
+        attribute: type
+        attribute-value: constituent
+        subpaths:
+          - subpath: titleInfo/title
+      - path: relatedItem
+        attribute: type
+        attribute-value: host
+        subpaths:
+          - subpath: titleInfo/title
+
+- spotlight-field: series_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: relatedItem
+        attribute: type
+        attribute-value: series      
+        delimiter: ". "
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: titleInfo/partName
+
+- spotlight-field: series_ssim
+  multivalue-breaks: "yes"
+  mods:
+      - path: relatedItem
+        attribute: type
+        attribute-value: series      
+        delimiter: ". "
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: titleInfo/partName
+        
+# Deliberately including role in display but not in facet, hence the slightly different field names.
+# Need to add "/" between Creator and Contributor for both field names in Spotlight exhibit after initial ingest. 
+
+- spotlight-field: creator-contributor_tesim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  mods:
+      - path: plain_name
+        delimiter: ", "
+        subpaths:
+          - subpath: namePart
+          - subpath: role/roleTerm
+        
+- spotlight-field: creators-contributors_ssim
+  multivalue-breaks: "yes"
+  delimiter: "|"
+  mods:
+      - path: plain_name
+        delimiter: ", "
+        subpaths:
+          - subpath: namePart
+         
+- spotlight-field: publisher_tesim
+  delimiter: "|"  
+  mods:
+      - path: originInfo/publisher
+
+- spotlight-field: publisher_ssim
+  multivalue-breaks: "yes"
+  mods:
+      - path: originInfo/publisher
+   
+- spotlight-field: place-of-origin_tesim
+  multivalue-breaks: "yes" 
+  mods:
+      - path: originInfo/place/placeTerm
+        attribute: type
+        attribute-value: '!code'
+
+- spotlight-field: place-of-origin_ssim
+  multivalue-breaks: "yes"
+
+  mods:
+      - path: originInfo/place/placeTerm
+        attribute: type
+        attribute-value: '!code'
+
+- spotlight-field: date_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value:   
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:         
+      - path: originInfo/dateOther
+        attribute: '!point'
+        attribute-value: 
+
+- spotlight-field: date_ssim
+  multivalue-breaks: "yes"
+  mods:
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:         
+      - path: originInfo/dateOther
+        attribute: '!point'
+        attribute-value:
+
+- spotlight-field: edition_tesim
+  mods:
+      - path: originInfo/edition
+
+- spotlight-field: classification_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: classification
+         
+- spotlight-field: spotlight_upload_description_tesim
+  delimiter: "|"
+  mods: 
+      - path: abstract
+
+- spotlight-field: contents_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: tableOfContents
+      
+- spotlight-field: extent_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: physicalDescription/extent
+
+- spotlight-field: digital-format_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//librarycloud:digitalFormat"
+        xpath-namespace-prefix: "librarycloud"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/librarycloud"
+
+- spotlight-field: digital-format_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//librarycloud:digitalFormat"
+        xpath-namespace-prefix: "librarycloud"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/librarycloud"
+
+- spotlight-field: harvard-repository_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//librarycloud:HarvardRepository"
+        xpath-namespace-prefix: "librarycloud"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/librarycloud"
+   
+# default can be dropped in language fields below when default is confirmed set in all LibraryCloud ingest streams.
+
+- spotlight-field: language_ssim
+  default-value: unspecified or not applicable
+  delimiter: "|"
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "/mods:mods/mods:language/mods:languageTerm[@type='text']"
+      
+- spotlight-field: language_tesim
+  default-value: unspecified or not applicable
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "/mods:mods/mods:language/mods:languageTerm[@type='text']"
+
+- spotlight-field: culture_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//cdwalite:culture"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+  
+- spotlight-field: culture_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//cdwalite:culture"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+ 
+- spotlight-field: style-period_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//cdwalite:style"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+
+- spotlight-field: style-period_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//cdwalite:style"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+ 
+- spotlight-field: materials-techniques_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//cdwalite:termMaterialsTech"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+ 
+- spotlight-field: materials-techniques_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//cdwalite:termMaterialsTech"
+        xpath-namespace-prefix: "cdwalite"
+        xpath-namespace-def: "http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite"
+
+# Consider trying regex, either here or in LibraryCloud [source]@mods.xsl to identify additional Finding Aid links
+
+- spotlight-field: finding-aid_tesim
+  xpath:
+      - xpath-value: "//mods:relatedItem[@otherType='Finding Aid']/mods:location/mods:url"
+      
+- spotlight-field: repository_ssim
+  multivalue-breaks: "yes"
+  xpath:
+    - xpath-value: "/mods:mods/mods:location/mods:physicalLocation[@type='repository']"
+    - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+    - xpath-value: "//mods:relatedItem[@type='constituent']/mods:location/mods:physicalLocation[@type='repository']"
+
+#  Is there a way via xpath to associate shelfLocator with each of these in tesim only, 
+#   without having the shelfLocator treated as a separate repository? 
+
+- spotlight-field: repository_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "/mods:mods/mods:location/mods:physicalLocation[@type='repository']"  
+      - xpath-value: "//mods:relatedItem[@type='host']/mods:location/mods:physicalLocation[@type='repository']"
+      - xpath-value: "//mods:relatedItem[@type='constituent']/mods:location/mods:physicalLocation[@type='repository']"
+        
+- spotlight-field: subjects_ssim
+  multivalue-breaks: "yes"
+  mods:
+      - path: subject
+        attribute: authority
+        attribute-value: lcsh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: authority
+        attribute-value: lcsh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: subject
+        attribute: authority
+        attribute-value: mesh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: authority
+        attribute-value: mesh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: subject
+        attribute: authority
+        attribute-value: fast
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: authority
+        attribute-value: fast
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: subject
+        attribute: '!authority'
+        attribute-value:
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: '!authority'
+        attribute-value:
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+
+- spotlight-field: subjects_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: subject
+        attribute: authority
+        attribute-value: lcsh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: authority
+        attribute-value: lcsh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: subject
+        attribute: authority
+        attribute-value: mesh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: authority
+        attribute-value: mesh
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: subject
+        attribute: authority
+        attribute-value: fast
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: authority
+        attribute-value: fast
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: subject
+        attribute: '!authority'
+        attribute-value:
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+      - path: relatedItem/subject
+        attribute: '!authority'
+        attribute-value:
+        delimiter: "--"
+        subpaths:
+          - subpath: name/namePart
+          - subpath: titleInfo/title
+          - subpath: topic
+          - subpath: geographic
+          - subpath: temporal
+          - subpath: genre
+        
+- spotlight-field: genre_tesim
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "//mods:genre"
+
+- spotlight-field: genre_ssim
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "//mods:genre"
+
+- spotlight-field: places_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: subject/hierarchicalGeographic
+        delimiter: "--"
+        subpaths:
+          - subpath: continent
+          - subpath: country
+          - subpath: region
+          - subpath: state
+          - subpath: territory
+          - subpath: county
+          - subpath: city
+          - subpath: island
+          - subpath: area
+          - subpath: extraterrestrialArea
+          - subpath: citySection
+      - path: location/physicalLocation
+        delimiter: "--"
+        attribute: type
+        attribute-value: '!repository'
+
+- spotlight-field: places_ssim
+  multivalue-breaks: yes
+  mods:
+      - path: subject/hierarchicalGeographic
+        delimiter: "--"
+        subpaths:
+          - subpath: continent
+          - subpath: country
+          - subpath: region
+          - subpath: state
+          - subpath: territory
+          - subpath: county
+          - subpath: city
+          - subpath: island
+          - subpath: area
+          - subpath: extraterrestrialArea
+          - subpath: citySection
+      - path: location/physicalLocation
+        delimiter: "--"
+        attribute: type
+        attribute-value: '!repository'
+        
+- spotlight-field: attribution_tesim
+  multivalue-breaks: "yes"
+  mods:
+      - path: note
+        attribute: type
+        attribute-value: statement of responsibility
+        
+- spotlight-field: in-collection_tesim
+  delimiter: ", "
+  xpath:
+      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:titleInfo/mods:title"
+      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:identifier"      
+          
+- spotlight-field: collection_ssim
+  xpath:
+      - xpath-value: "//mods:relatedItem[@displayLabel='collection']/mods:titleInfo/mods:title" 
+
+- spotlight-field: note_tesim
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "//mods:note[not(@type='statement of responsibility' or @type='organization')]"
+
+- spotlight-field: thumbnail_url_ssm
+  xpath:
+      - xpath-value: "(//mods:location/mods:url[@access='preview'])[1]"
+
+# This helps, but it can result in thumbnail and full being for different resources
+
+- spotlight-field: full_image_url_ssm
+  xpath:
+      - xpath-value: "(//mods:location/mods:url[@access='raw object'])[1]"
+        
+- spotlight-field: additional-digital-items_tesim
+  multivalue-breaks: "yes"
+  xpath:
+      - xpath-value: "(//mods:location/mods:url[@access='raw object'])[2]"
+      - xpath-value: "(//mods:location/mods:url[@access='raw object'])[3]"
+
+- spotlight-field: rights_tesim
+  mods:
+      - path: accessCondition
+       
+- spotlight-field: record-id_tesim
+  mods:
+      - path: recordInfo/recordIdentifier
+
+#  This is here because the baked-in Spotlight Date element doesn't display.
+#  dateOther is not included because it tends to duplicate other date elements.
+
+- spotlight-field: creation-date_tesim
+  mods:
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value:       
+      - path: originInfo/dateCreated
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:         
+
+- spotlight-field: creation-date_ssim
+  multivalue-breaks: "yes"
+  mods:
+      - path: originInfo/dateIssued
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/dateCreated  
+        attribute: '!point'
+        attribute-value:       
+      - path: originInfo/dateCaptured
+        attribute: '!point'
+        attribute-value: 
+      - path: originInfo/copyrightDate
+        attribute: '!point'
+        attribute-value:          
+
+- spotlight-field: available-to_tesim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//librarycloud:availableTo"
+        xpath-namespace-prefix: "librarycloud"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/librarycloud"
+
+- spotlight-field: available-to_ssim
+  multivalue-breaks: "yes"
+  xpath: 
+      - xpath-value: "//librarycloud:availableTo"
+        xpath-namespace-prefix: "librarycloud"
+        xpath-namespace-def: "http://hul.harvard.edu/ois/xml/ns/librarycloud"
+
+- spotlight-field: hollis-record_tesim
+  xpath:
+      - xpath-value: "//mods:relatedItem[@otherType='HOLLIS record' or @otherType='HOLLIS Images record']/mods:location/mods:url"  
+   
+#  For each collection with object-in-context URLs, add a permalink spotlight field modeled on Studies in Scarlet, below,
+#    replacing "Studies in Scarlet" with the value of the displayLabel attribute for the collection.
+#
+#
+#- spotlight-field: permalink-dcp_tesim
+#  xpath:
+#      - xpath-value: "//mods:url[@displayLabel='Harvard Digital Collections']"
+
+- spotlight-field: permalink-contagion_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Contagion: Historical Views of Diseases and Epidemics']" 
+      
+- spotlight-field: permalink-crimes_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='English Crime and Execution Broadsides']"  
+
+- spotlight-field: permalink-dag_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Daguerreotypes at Harvard']"
+
+- spotlight-field: permalink-exp_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Expeditions and Discoveries: Sponsored Exploration and Scientific Discovery in the Modern Age']"
+      
+- spotlight-field: permalink-ihp_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Islamic Heritage Project']" 
+
+- spotlight-field: permalink-immigration_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Immigration to the United States, 1789-1930']"
+
+- spotlight-field: permalink-lap_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Latin American Pamphlet Digital Collection']"
+
+- spotlight-field: permalink-maps_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Scanned Maps']"  
+
+- spotlight-field: permalink-medmss_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Medieval & Renaissance Manuscripts']"
+
+- spotlight-field: permalink-reading_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Reading: Harvard Views of Readers, Readership, and Reading History']"
+
+- spotlight-field: permalink-rubbings_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Chinese Rubbings Collection']"  
+      
+- spotlight-field: permalink-scarlet_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Studies in Scarlet: Marriage and Sexuality in the U.S. & U.K., 1815-1914']"  
+
+- spotlight-field: permalink-scores_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Digital Scores and Libretti']"
+
+- spotlight-field: permalink-ward_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Artemas Ward House and Its Collections']"
+      
+- spotlight-field: permalink-ww_tesim
+  xpath:
+      - xpath-value: "//mods:url[@displayLabel='Women Working, 1800-1930']"  
+
+
+
+      

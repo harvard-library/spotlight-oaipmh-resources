@@ -11,7 +11,7 @@ en:
               add_item: "Harvest items"
               url-field:
                 help: "Add the base URL of the data to be harvested."
-              set: "Set name"
+              set: "Set spec"
               set-field:
                 help: "Type in the set name to be harvested."
               mapping-file: "Select Mapping File"

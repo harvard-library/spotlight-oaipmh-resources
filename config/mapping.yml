@@ -17,6 +17,9 @@
 - spotlight-field: unique-id_tesim
   mods:
       - path: recordInfo/recordIdentifier
+- spotlight-field: unique-id-sort_tesi
+  mods:
+      - path: recordInfo/recordIdentifier
 - spotlight-field: full_title_tesim
   delimiter: ": "
   mods:

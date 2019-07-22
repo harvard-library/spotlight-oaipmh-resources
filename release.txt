@@ -1,10 +1,22 @@
 RELEASE NOTES
+0.3.3 (05/22/2019) VC
+-- Fixed bug to prevent thumbnail from harvesting if it doesn't exist.
+-- Updated curiosity.yml
+
+0.3.2 (04/29/2019) VC
+-- Updated vulnerabilities
+   - devise (CVE-2019-5421)
+   - railities (CVE-2019-5420)
+   - actionview (CVE-2019-5418)
+   - bootstrap-sass (CVE-2019-8331)
+
+0.3.1 (04/17/2019) VC
+-- Changed set name to set spec in labeling (DCP-326) 
 
 0.3.0 (10/15/2018) VC
--- Internal pagination so harvesting paginates in chunks rather than relying on Spotlight. This allows for large batches to be pushed incrementally.
+-- Internal pagination so harvesting paginates in chunks rather than relying on Spotlight 
 
-0.2.1 (10/15/2018) VC
--- Allows for harvesting from a Solr index. Example mapping files are in the examples folder. 
+0.2.1 (09/17/2018) VC
 -- Fix to harvester for OAI harvesting in prod
 
 0.2.0 (08/24/2018) VC
