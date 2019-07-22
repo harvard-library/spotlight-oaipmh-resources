@@ -1,4 +1,7 @@
 RELEASE NOTES
+0.3.4 (07/22/2019) VC
+-- Updated vulnerability for mini_magick (CVE-2019-13574)
+
 0.3.3 (05/22/2019) VC
 -- Fixed bug to prevent thumbnail from harvesting if it doesn't exist.
 -- Updated curiosity.yml

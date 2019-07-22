@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_bot_rails'
   s.add_development_dependency "riiif"
   s.add_development_dependency 'libxml-ruby'
-  s.add_development_dependency "engine_cart", '0.10.0'
+  s.add_development_dependency "engine_cart", '2.2.1'
   s.add_development_dependency 'database_cleaner', '~> 1.3'
   s.add_development_dependency 'blacklight-gallery'
   s.add_development_dependency 'sitemap_generator'

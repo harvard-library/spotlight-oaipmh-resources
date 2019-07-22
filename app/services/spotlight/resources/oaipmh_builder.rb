@@ -350,8 +350,10 @@ private
       def process_images()
         if (@item_solr.key?('thumbnail_url_ssm') && !@item_solr['thumbnail_url_ssm'].blank? && !@item_solr['thumbnail_url_ssm'].eql?('null'))           
           thumburl = fetch_ids_uri(@item_solr['thumbnail_url_ssm'])
-          thumburl = transform_ids_uri_to_iiif(thumburl)
-          @item_solr['thumbnail_url_ssm'] =  thumburl
+          if (!thumburl.blank? && !thumburl.eql?('null'))
+            thumburl = transform_ids_uri_to_iiif(thumburl)
+            @item_solr['thumbnail_url_ssm'] =  thumburl
+          end
         end
         if (@item_solr.key?('full_image_url_ssm') && !@item_solr['full_image_url_ssm'].blank? && !@item_solr['full_image_url_ssm'].eql?('null'))           
           
