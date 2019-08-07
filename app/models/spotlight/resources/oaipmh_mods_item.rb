@@ -24,6 +24,10 @@ module Spotlight::Resources
           
       if (@modsrecord.mods_ng_xml.record_info && @modsrecord.mods_ng_xml.record_info.recordIdentifier)
         @id = @modsrecord.mods_ng_xml.record_info.recordIdentifier.text 
+        #If the ID is blank, throw an error.
+        if (@id.blank?)
+          raise InvalidModsRecord, "A mods record was found that has no identifier."
+        end
         #Strip out all of the decimals
         @id = @id.gsub('.', '')
         @id = @exhibit.id.to_s + "-" + @id.to_s
