@@ -43,9 +43,19 @@ module Spotlight
           if (resumption_token.nil?)
             last_page_evaluated = true
           end
+
           harvests.each do |record|
             @item = OaipmhModsItem.new(exhibit, @oai_mods_converter)
             @item.metadata = record.metadata
+            #Temporary fix for resumption token issue on LC end
+            #Check to see if the count is 0 or 1 and if the first identifier is blank
+            if (resource.data[:count].blank? || resource.data[:count] == 1)
+              if (@item.has_blank_identifier?)
+                last_page_evaluated = true
+                resumption_token = nil
+                break
+              end
+            end
             @item.parse_mods_record()
             begin
               @item_solr = @item.to_solr

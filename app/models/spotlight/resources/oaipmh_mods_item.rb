@@ -18,9 +18,18 @@ module Spotlight::Resources
       solr_hash
     end
     
+    def has_blank_identifier?()
+      if (!@modsrecord)
+        @modsrecord = Mods::Record.new.from_str(metadata.elements.to_a[0].to_s)
+      end
+      @modsrecord.mods_ng_xml.record_info.recordIdentifier.text.blank?
+    end
+    
     def parse_mods_record()
-        
-      @modsrecord = Mods::Record.new.from_str(metadata.elements.to_a[0].to_s)
+     
+      if (!@modsrecord)   
+        @modsrecord = Mods::Record.new.from_str(metadata.elements.to_a[0].to_s)
+      end
           
       if (@modsrecord.mods_ng_xml.record_info && @modsrecord.mods_ng_xml.record_info.recordIdentifier)
         @id = @modsrecord.mods_ng_xml.record_info.recordIdentifier.text 
@@ -54,8 +63,7 @@ module Spotlight::Resources
    # private
     
     attr_reader :solr_hash, :exhibit
-    
-    
+     
     
     def add_document_id
       solr_hash[:id] = @id.to_s
