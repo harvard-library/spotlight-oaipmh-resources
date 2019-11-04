@@ -434,7 +434,7 @@ private
       #Resolves urn-3 uris
       def fetch_ids_uri(uri_str)
         if (uri_str =~ /urn-3/)
-          response = Net::HTTP.get_response(URI.parse(uri_str))['location']
+          response = Net::HTTP.get_response(URI.parse(URI.encode(uri_str)))['location']
         elsif (uri_str.include?('?'))
           uri_str = uri_str.slice(0..(uri_str.index('?')-1))
         else
